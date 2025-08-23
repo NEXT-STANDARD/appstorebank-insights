@@ -12,7 +12,7 @@ export interface Article {
   tags?: string[]
   status: 'draft' | 'published' | 'archived'
   is_premium: boolean
-  is_featured: boolean
+  is_featured?: boolean
   author_id?: string
   published_at?: string
   created_at: string
