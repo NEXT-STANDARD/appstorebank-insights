@@ -1,0 +1,19 @@
+{
+  "name": "appstorebank-insights",
+  "version": "1.0.0",
+  "description": "AppStoreBank Insights - 業界洞察メディア",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx serve . -p 3001",
+    "build": "echo 'Static build complete'",
+    "start": "npx serve . -p 3001"
+  },
+  "keywords": [
+    "appstore",
+    "insights",
+    "market-analysis",
+    "trends"
+  ],
+  "author": "AppStoreBank",
+  "license": "MIT"
+}
