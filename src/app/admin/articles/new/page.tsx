@@ -20,6 +20,7 @@ export default function NewArticlePage() {
     tags: [] as string[],
     status: 'draft',
     is_premium: false,
+    is_featured: false,
     cover_image_url: ''
   })
   const [showImageSelector, setShowImageSelector] = useState(false)
@@ -248,6 +249,19 @@ export default function NewArticlePage() {
               />
               <label htmlFor="is_premium" className="ml-2 block text-sm text-neutral-700">
                 プレミアム記事
+              </label>
+            </div>
+
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="is_featured"
+                checked={formData.is_featured}
+                onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
+                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 rounded"
+              />
+              <label htmlFor="is_featured" className="ml-2 block text-sm text-neutral-700">
+                注目記事として表示
               </label>
             </div>
           </div>

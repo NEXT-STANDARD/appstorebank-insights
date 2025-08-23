@@ -12,6 +12,7 @@ export interface Article {
   tags?: string[]
   status: 'draft' | 'published' | 'archived'
   is_premium: boolean
+  is_featured: boolean
   author_id?: string
   published_at?: string
   created_at: string
@@ -45,8 +46,9 @@ export async function getPublishedArticles(options: {
   category?: string
   limit?: number
   offset?: number
+  featured?: boolean
 } = {}) {
-  const { category, limit = 10, offset = 0 } = options
+  const { category, limit = 10, offset = 0, featured = false } = options
   
   // 1つ多く取得してhasMoreを判定
   let query = supabase
@@ -69,6 +71,10 @@ export async function getPublishedArticles(options: {
     if (dbCategory) {
       query = query.eq('category', dbCategory)
     }
+  }
+
+  if (featured) {
+    query = query.eq('is_featured', true)
   }
 
   const { data, error } = await query

@@ -12,12 +12,26 @@ export default function FeaturedArticles() {
   useEffect(() => {
     const loadFeaturedArticles = async () => {
       try {
-        const { articles: rawArticles } = await getPublishedArticles({ 
-          limit: 6 
+        // 注目記事フラグがついた記事を取得
+        const { articles: featuredArticles } = await getPublishedArticles({ 
+          limit: 12,  // より多く取得して注目記事をフィルタ
+          featured: true  // 注目記事のみ
         })
         
+        // 注目記事がない場合は最新記事を表示
+        let finalArticles = featuredArticles
+        if (featuredArticles.length === 0) {
+          const { articles: latestArticles } = await getPublishedArticles({ 
+            limit: 6 
+          })
+          finalArticles = latestArticles
+        } else {
+          // 注目記事が多すぎる場合は6つに制限
+          finalArticles = featuredArticles.slice(0, 6)
+        }
+        
         // デフォルト画像を設定
-        const articlesWithImages = await ensureArticleImages(rawArticles)
+        const articlesWithImages = await ensureArticleImages(finalArticles)
         setArticles(articlesWithImages)
       } catch (error) {
         console.error('Failed to load articles:', error)

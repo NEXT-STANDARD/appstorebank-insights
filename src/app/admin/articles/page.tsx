@@ -144,9 +144,21 @@ export default function ArticlesManagementPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-1 text-xs rounded-full ${getStatusBadge(article.status)}`}>
-                        {article.status === 'published' ? '公開済み' : article.status === 'draft' ? '下書き' : 'アーカイブ'}
-                      </span>
+                      <div className="flex items-center space-x-2">
+                        <span className={`px-2 py-1 text-xs rounded-full ${getStatusBadge(article.status)}`}>
+                          {article.status === 'published' ? '公開済み' : article.status === 'draft' ? '下書き' : 'アーカイブ'}
+                        </span>
+                        {article.is_featured && (
+                          <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">
+                            注目
+                          </span>
+                        )}
+                        {article.is_premium && (
+                          <span className="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-800">
+                            Premium
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-neutral-500">
                       {new Date(article.created_at).toLocaleDateString('ja-JP')}
