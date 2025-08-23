@@ -8,7 +8,7 @@ const withMDX = require('@next/mdx')({
 })
 
 const nextConfig = {
-  // App Router は Next.js 13.4+ ではデフォルトで有効
+  // App Router は Next.js 13.4+ では標準
   
   // MDX対応
   pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
