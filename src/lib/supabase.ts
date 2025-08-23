@@ -12,13 +12,20 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 })
 
 // Server-side用（Service Role Key使用）
-export const supabaseAdmin = createClient(
-  supabaseUrl,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
+// Client Componentでは使用しない
+export const getSupabaseAdmin = () => {
+  if (typeof window !== 'undefined') {
+    throw new Error('supabaseAdmin can only be used on the server side')
   }
-)
+  
+  return createClient(
+    supabaseUrl,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  )
+}

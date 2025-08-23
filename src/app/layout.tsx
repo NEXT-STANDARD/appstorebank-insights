@@ -30,11 +30,21 @@ export const metadata: Metadata = {
     locale: 'ja_JP',
     url: 'https://insights.appstorebank.com',
     siteName: 'AppStoreBank Insights',
+    images: [
+      {
+        url: '/api/og?title=AppStoreBank Insights&category=業界洞察メディア',
+        width: 1200,
+        height: 630,
+        alt: 'AppStoreBank Insights - 業界洞察メディア',
+      }
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'AppStoreBank Insights',
     description: 'アプリストア業界の専門的な洞察とトレンド分析',
+    images: ['/api/og?title=AppStoreBank Insights&category=業界洞察メディア'],
+    creator: '@AppStoreBank',
   },
   robots: {
     index: true,
@@ -59,7 +69,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja" className={inter.className} suppressHydrationWarning>
-      <body className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900" suppressHydrationWarning>
+      <body className="min-h-screen bg-light-gradient" suppressHydrationWarning>
         <div className="min-h-screen flex flex-col">
           {children}
         </div>

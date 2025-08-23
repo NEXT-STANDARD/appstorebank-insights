@@ -26,9 +26,9 @@ export default function Newsletter() {
   return (
     <section className="py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
-        <div className="glass-card p-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">最新記事を見逃さない</h2>
-          <p className="text-white/70 mb-8 text-lg">
+        <div className="bg-white/80 backdrop-blur-sm border border-neutral-200 rounded-2xl p-8 text-center shadow-lg">
+          <h2 className="text-3xl font-bold mb-4 text-neutral-800">最新記事を見逃さない</h2>
+          <p className="text-neutral-600 mb-8 text-lg">
             業界の重要な動向とInsightsの最新記事をお届けします
           </p>
 
@@ -40,17 +40,17 @@ export default function Newsletter() {
               placeholder="メールアドレス"
               required
               disabled={isSubmitting}
-              className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+              className="flex-1 px-4 py-3 bg-neutral-50 border border-neutral-300 rounded-xl text-neutral-800 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
             />
             <button
               type="submit"
               disabled={isSubmitting || !email}
               className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
                 isSubmitted
-                  ? 'bg-green-500 text-white'
+                  ? 'bg-accent-mint text-white'
                   : isSubmitting
-                  ? 'bg-primary-500/50 text-white/70 cursor-not-allowed'
-                  : 'bg-primary-gradient text-white hover:shadow-lg hover:shadow-primary-500/30 hover:-translate-y-0.5'
+                  ? 'bg-primary-300 text-white cursor-not-allowed'
+                  : 'bg-primary-gradient text-white hover:shadow-lg hover:shadow-primary-300/50 hover:-translate-y-0.5'
               }`}
             >
               {isSubmitted ? '登録完了！' : isSubmitting ? '登録中...' : '購読開始'}
@@ -58,7 +58,7 @@ export default function Newsletter() {
           </form>
 
           {isSubmitted && (
-            <p className="text-green-400 text-sm mt-4 animate-fade-in">
+            <p className="text-accent-mint text-sm mt-4 animate-fade-in">
               ご登録ありがとうございます！
             </p>
           )}

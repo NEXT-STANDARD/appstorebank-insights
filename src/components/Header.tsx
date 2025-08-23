@@ -7,37 +7,37 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
-    <header className="glass-header">
+    <header className="bg-white/80 backdrop-blur-md border-b border-neutral-200 shadow-sm">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center space-x-4">
             <Link href="https://appstorebank.com" className="flex items-center space-x-3">
-              <div className="bg-primary-gradient text-white font-bold text-xl px-3 py-1 rounded-lg">
+              <div className="bg-primary-gradient text-white font-bold text-xl px-3 py-1 rounded-lg shadow-md">
                 AppStoreBank
               </div>
             </Link>
-            <span className="text-white/60 text-sm">Insights</span>
+            <span className="text-neutral-600 text-sm font-medium">Insights</span>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="nav-link">
+            <Link href="/" className="text-neutral-700 hover:text-primary-600 font-medium text-sm transition-colors">
               ホーム
             </Link>
-            <Link href="/reports" className="nav-link">
+            <Link href="/reports" className="text-neutral-700 hover:text-primary-600 font-medium text-sm transition-colors">
               市場分析
             </Link>
-            <Link href="/global" className="nav-link">
+            <Link href="/global" className="text-neutral-700 hover:text-primary-600 font-medium text-sm transition-colors">
               グローバル
             </Link>
-            <Link href="/law" className="nav-link">
+            <Link href="/law" className="text-neutral-700 hover:text-primary-600 font-medium text-sm transition-colors">
               法規制
             </Link>
-            <Link href="/tech" className="nav-link">
+            <Link href="/tech" className="text-neutral-700 hover:text-primary-600 font-medium text-sm transition-colors">
               技術
             </Link>
-            <Link href="/newsletter" className="nav-link">
+            <Link href="/newsletter" className="text-neutral-700 hover:text-primary-600 font-medium text-sm transition-colors">
               ニュースレター
             </Link>
           </div>
@@ -46,19 +46,19 @@ export default function Header() {
           <div className="hidden md:flex items-center space-x-4">
             <Link 
               href="https://developer.appstorebank.com" 
-              className="text-white/70 hover:text-white text-sm transition-colors"
+              className="text-neutral-600 hover:text-primary-600 text-sm transition-colors"
             >
               Developer
             </Link>
             <Link 
               href="https://api.appstorebank.com" 
-              className="text-white/70 hover:text-white text-sm transition-colors"
+              className="text-neutral-600 hover:text-primary-600 text-sm transition-colors"
             >
               API
             </Link>
             <Link 
               href="https://appstorebank.com" 
-              className="text-white/70 hover:text-white text-sm transition-colors"
+              className="text-neutral-600 hover:text-primary-600 text-sm transition-colors"
             >
               ← メインサイト
             </Link>
@@ -68,7 +68,7 @@ export default function Header() {
           <div className="md:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-white/70 hover:text-white focus:outline-none focus:text-white"
+              className="text-neutral-600 hover:text-primary-600 focus:outline-none focus:text-primary-600"
               aria-label="メニューを開く"
             >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -84,21 +84,21 @@ export default function Header() {
 
         {/* Mobile menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-white/10 backdrop-blur-sm rounded-xl mt-2 p-4 space-y-3">
-            <Link href="/" className="block nav-link">ホーム</Link>
-            <Link href="/reports" className="block nav-link">市場分析</Link>
-            <Link href="/global" className="block nav-link">グローバル</Link>
-            <Link href="/law" className="block nav-link">法規制</Link>
-            <Link href="/tech" className="block nav-link">技術</Link>
-            <Link href="/newsletter" className="block nav-link">ニュースレター</Link>
-            <div className="pt-3 border-t border-white/20 space-y-2">
-              <Link href="https://developer.appstorebank.com" className="block text-white/70 hover:text-white text-sm">
+          <div className="md:hidden bg-white/90 backdrop-blur-sm rounded-xl mt-2 p-4 space-y-3 border border-neutral-200 shadow-lg">
+            <Link href="/" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">ホーム</Link>
+            <Link href="/reports" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">市場分析</Link>
+            <Link href="/global" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">グローバル</Link>
+            <Link href="/law" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">法規制</Link>
+            <Link href="/tech" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">技術</Link>
+            <Link href="/newsletter" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">ニュースレター</Link>
+            <div className="pt-3 border-t border-neutral-200 space-y-2">
+              <Link href="https://developer.appstorebank.com" className="block text-neutral-600 hover:text-primary-600 text-sm py-1 transition-colors">
                 Developer Portal
               </Link>
-              <Link href="https://api.appstorebank.com" className="block text-white/70 hover:text-white text-sm">
+              <Link href="https://api.appstorebank.com" className="block text-neutral-600 hover:text-primary-600 text-sm py-1 transition-colors">
                 API Services
               </Link>
-              <Link href="https://appstorebank.com" className="block text-white/70 hover:text-white text-sm">
+              <Link href="https://appstorebank.com" className="block text-neutral-600 hover:text-primary-600 text-sm py-1 transition-colors">
                 ← メインサイト
               </Link>
             </div>
