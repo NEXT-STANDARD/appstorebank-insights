@@ -71,10 +71,10 @@ export default function FeaturedArticles() {
                 title={article.title}
                 excerpt={article.excerpt || ''}
                 category={getCategoryDisplayName(article.category)}
-                publishedAt={new Date(article.published_at || article.created_at).toLocaleDateString('ja-JP')}
+                publishedAt={article.published_at || article.created_at}
                 readingTime={(article.reading_time || 5).toString()}
                 slug={article.slug}
-                thumbnail={article.cover_image_url}
+                coverImageUrl={article.cover_image_url}
                 tags={article.tags}
               />
             ))}

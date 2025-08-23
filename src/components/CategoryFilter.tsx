@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { getCategoryDisplayName } from '@/lib/articles'
 
 interface CategoryFilterProps {
   categories: string[]
@@ -22,7 +23,7 @@ export default function CategoryFilter({ categories, activeCategory, onCategoryC
   // カテゴリ別の記事数を計算
   const getCategoryCount = (category: string) => {
     if (category === 'すべて') return articles.length
-    return articles.filter(article => article.category === category).length
+    return articles.filter(article => getCategoryDisplayName(article.category) === category).length
   }
   return (
     <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 mb-8">

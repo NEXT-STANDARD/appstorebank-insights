@@ -9,6 +9,7 @@ interface ArticleCardProps {
   readingTime: string
   slug: string
   thumbnail?: string
+  coverImageUrl?: string
   tags?: string[]
 }
 
@@ -28,6 +29,7 @@ export default function ArticleCard({
   readingTime,
   slug,
   thumbnail,
+  coverImageUrl,
   tags = []
 }: ArticleCardProps) {
   const categoryStyle = categoryColors[category as keyof typeof categoryColors] || 'bg-gray-100 text-gray-800'
@@ -36,9 +38,9 @@ export default function ArticleCard({
     <article className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
       {/* Thumbnail */}
       <div className="aspect-[16/9] overflow-hidden bg-gradient-to-br from-primary-100 to-secondary-100">
-        {thumbnail ? (
+        {(coverImageUrl || thumbnail) ? (
           <Image
-            src={thumbnail}
+            src={coverImageUrl || thumbnail || ''}
             alt={title}
             width={400}
             height={225}
@@ -65,7 +67,7 @@ export default function ArticleCard({
             {category}
           </span>
           <div className="flex items-center space-x-3 text-sm text-neutral-500">
-            <span>{publishedAt}</span>
+            <span>{new Date(publishedAt).toLocaleDateString('ja-JP')}</span>
             <span>•</span>
             <span>{readingTime}分</span>
           </div>

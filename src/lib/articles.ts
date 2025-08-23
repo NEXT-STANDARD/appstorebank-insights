@@ -48,6 +48,7 @@ export async function getPublishedArticles(options: {
 } = {}) {
   const { category, limit = 10, offset = 0 } = options
   
+  // 1つ多く取得してhasMoreを判定
   let query = supabase
     .from('articles')
     .select(`
@@ -61,7 +62,7 @@ export async function getPublishedArticles(options: {
     .eq('status', 'published')
     .not('published_at', 'is', null)
     .order('published_at', { ascending: false })
-    .range(offset, offset + limit - 1)
+    .range(offset, offset + limit)  // 1つ多く取得
 
   if (category && category !== 'すべて') {
     const dbCategory = categoryMappingReverse[category as keyof typeof categoryMappingReverse]
@@ -74,10 +75,10 @@ export async function getPublishedArticles(options: {
 
   if (error) {
     console.error('Error fetching articles:', error)
-    return { articles: [], error }
+    return { articles: [], error, hasMore: false }
   }
 
-  const articles: Article[] = data?.map(article => ({
+  const allArticles: Article[] = data?.map(article => ({
     ...article,
     author: article.profiles ? {
       id: article.profiles.id,
@@ -86,7 +87,11 @@ export async function getPublishedArticles(options: {
     } : undefined
   })) || []
 
-  return { articles, error: null }
+  // hasMoreの判定
+  const hasMore = allArticles.length > limit
+  const articles = hasMore ? allArticles.slice(0, limit) : allArticles
+
+  return { articles, error: null, hasMore }
 }
 
 // 単一記事を取得
