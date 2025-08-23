@@ -4,9 +4,11 @@
   "description": "AppStoreBank Insights - 業界洞察メディア",
   "main": "index.html",
   "scripts": {
-    "dev": "npx serve . -p 3001",
-    "build": "echo 'Static build complete'",
-    "start": "npx serve . -p 3001"
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start -p 3001",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
   },
   "keywords": [
     "appstore",
@@ -15,5 +17,33 @@
     "trends"
   ],
   "author": "AppStoreBank",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NEXT-STANDARD/appstorebank-insights.git"
+  },
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/NEXT-STANDARD/appstorebank-insights/issues"
+  },
+  "homepage": "https://github.com/NEXT-STANDARD/appstorebank-insights#readme",
+  "dependencies": {
+    "@mdx-js/loader": "^3.1.0",
+    "@mdx-js/react": "^3.1.0",
+    "@next-auth/supabase-adapter": "^0.2.1",
+    "@next/mdx": "^15.5.0",
+    "@supabase/supabase-js": "^2.56.0",
+    "@tailwindcss/typography": "^0.5.16",
+    "@types/node": "^24.3.0",
+    "@types/react": "^19.1.11",
+    "@types/react-dom": "^19.1.7",
+    "autoprefixer": "^10.4.21",
+    "next": "^15.5.0",
+    "next-auth": "^4.24.11",
+    "postcss": "^8.5.6",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.9.2"
+  }
 }
