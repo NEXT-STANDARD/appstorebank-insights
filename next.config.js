@@ -15,8 +15,30 @@ const nextConfig = {
   
   // 画像最適化
   images: {
-    domains: ['qczwbwhbxyrwasauxhwy.supabase.co'], // Supabase Storage
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'qczwbwhbxyrwasauxhwy.supabase.co',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'unsplash.com',
+        port: '',
+        pathname: '/**',
+      }
+    ],
     formats: ['image/webp', 'image/avif'],
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   
   // TypeScript設定

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { useState } from 'react'
 
 interface ArticleCardProps {
   title: string
@@ -33,18 +34,35 @@ export default function ArticleCard({
   tags = []
 }: ArticleCardProps) {
   const categoryStyle = categoryColors[category as keyof typeof categoryColors] || 'bg-gray-100 text-gray-800'
+  const [imageError, setImageError] = useState(false)
+  
+  const imageUrl = coverImageUrl || thumbnail
+  const shouldShowImage = imageUrl && !imageError && isValidImageUrl(imageUrl)
+  
+  // 画像URLの妥当性をチェック
+  function isValidImageUrl(url: string): boolean {
+    try {
+      const parsedUrl = new URL(url)
+      return parsedUrl.protocol === 'https:' && 
+             (parsedUrl.hostname === 'images.unsplash.com' || 
+              parsedUrl.hostname === 'unsplash.com' ||
+              parsedUrl.hostname.includes('supabase.co'))
+    } catch {
+      return false
+    }
+  }
 
   return (
     <article className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
       {/* Thumbnail */}
       <div className="aspect-[16/9] overflow-hidden bg-gradient-to-br from-primary-100 to-secondary-100">
-        {(coverImageUrl || thumbnail) ? (
-          <Image
-            src={coverImageUrl || thumbnail || ''}
+        {shouldShowImage ? (
+          <img
+            src={imageUrl}
             alt={title}
-            width={400}
-            height={225}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            onError={() => setImageError(true)}
+            loading="lazy"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-secondary-100">
