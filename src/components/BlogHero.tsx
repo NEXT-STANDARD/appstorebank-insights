@@ -26,10 +26,10 @@ const mockFeaturedArticle: FeaturedArticle = {
   publishedAt: "2025-01-20",
   readingTime: "12",
   slug: "smartphone-market-revolution-japan-2025",
-  thumbnail: "/images/featured-article.jpg",
+  thumbnail: undefined,
   author: {
     name: "AppStoreBank編集部",
-    avatar: "/images/appstorebank-avatar.png"
+    avatar: undefined
   }
 }
 

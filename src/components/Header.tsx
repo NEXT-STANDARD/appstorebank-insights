@@ -25,19 +25,19 @@ export default function Header() {
             <Link href="/" className="text-neutral-700 hover:text-primary-600 font-medium text-sm transition-colors">
               ホーム
             </Link>
-            <Link href="/reports" className="text-neutral-700 hover:text-primary-600 font-medium text-sm transition-colors">
+            <Link href="/?category=market_analysis" className="text-neutral-700 hover:text-primary-600 font-medium text-sm transition-colors">
               市場分析
             </Link>
-            <Link href="/global" className="text-neutral-700 hover:text-primary-600 font-medium text-sm transition-colors">
+            <Link href="/?category=global_trends" className="text-neutral-700 hover:text-primary-600 font-medium text-sm transition-colors">
               グローバル
             </Link>
-            <Link href="/law" className="text-neutral-700 hover:text-primary-600 font-medium text-sm transition-colors">
+            <Link href="/?category=law_regulation" className="text-neutral-700 hover:text-primary-600 font-medium text-sm transition-colors">
               法規制
             </Link>
-            <Link href="/tech" className="text-neutral-700 hover:text-primary-600 font-medium text-sm transition-colors">
+            <Link href="/?category=tech_deep_dive" className="text-neutral-700 hover:text-primary-600 font-medium text-sm transition-colors">
               技術
             </Link>
-            <Link href="/newsletter" className="text-neutral-700 hover:text-primary-600 font-medium text-sm transition-colors">
+            <Link href="#newsletter" className="text-neutral-700 hover:text-primary-600 font-medium text-sm transition-colors">
               ニュースレター
             </Link>
           </div>
@@ -86,11 +86,11 @@ export default function Header() {
         {isMobileMenuOpen && (
           <div className="md:hidden bg-white/90 backdrop-blur-sm rounded-xl mt-2 p-4 space-y-3 border border-neutral-200 shadow-lg">
             <Link href="/" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">ホーム</Link>
-            <Link href="/reports" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">市場分析</Link>
-            <Link href="/global" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">グローバル</Link>
-            <Link href="/law" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">法規制</Link>
-            <Link href="/tech" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">技術</Link>
-            <Link href="/newsletter" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">ニュースレター</Link>
+            <Link href="/?category=market_analysis" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">市場分析</Link>
+            <Link href="/?category=global_trends" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">グローバル</Link>
+            <Link href="/?category=law_regulation" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">法規制</Link>
+            <Link href="/?category=tech_deep_dive" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">技術</Link>
+            <Link href="#newsletter" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">ニュースレター</Link>
             <div className="pt-3 border-t border-neutral-200 space-y-2">
               <Link href="https://developer.appstorebank.com" className="block text-neutral-600 hover:text-primary-600 text-sm py-1 transition-colors">
                 Developer Portal

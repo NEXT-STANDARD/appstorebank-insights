@@ -24,22 +24,22 @@ export default function Footer() {
             <h3 className="font-semibold text-neutral-800 mb-4">コンテンツ</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/reports" className="text-neutral-600 hover:text-primary-600 transition-colors">
+                <Link href="/?category=market_analysis" className="text-neutral-600 hover:text-primary-600 transition-colors">
                   市場分析レポート
                 </Link>
               </li>
               <li>
-                <Link href="/global" className="text-neutral-600 hover:text-primary-600 transition-colors">
+                <Link href="/?category=global_trends" className="text-neutral-600 hover:text-primary-600 transition-colors">
                   グローバルトレンド
                 </Link>
               </li>
               <li>
-                <Link href="/law" className="text-neutral-600 hover:text-primary-600 transition-colors">
+                <Link href="/?category=law_regulation" className="text-neutral-600 hover:text-primary-600 transition-colors">
                   法規制解説
                 </Link>
               </li>
               <li>
-                <Link href="/tech" className="text-neutral-600 hover:text-primary-600 transition-colors">
+                <Link href="/?category=tech_deep_dive" className="text-neutral-600 hover:text-primary-600 transition-colors">
                   技術深層解説
                 </Link>
               </li>
@@ -66,7 +66,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/newsletter" className="text-neutral-600 hover:text-primary-600 transition-colors">
+                <Link href="#newsletter" className="text-neutral-600 hover:text-primary-600 transition-colors">
                   ニュースレター
                 </Link>
               </li>

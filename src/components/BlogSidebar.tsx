@@ -113,7 +113,7 @@ export default function BlogSidebar({
           ))}
         </div>
         <Link 
-          href="/articles"
+          href="/"
           className="inline-flex items-center text-primary-600 hover:text-primary-700 text-sm font-medium mt-4 group"
         >
           すべての記事を見る
@@ -130,7 +130,7 @@ export default function BlogSidebar({
           {popularTags.map((tag) => (
             <Link
               key={tag.name}
-              href={`/tags/${encodeURIComponent(tag.name)}`}
+              href="/"
               className="inline-flex items-center space-x-1 px-3 py-1.5 bg-neutral-100 hover:bg-primary-100 hover:text-primary-700 text-neutral-700 text-sm rounded-lg transition-colors"
             >
               <span>#{tag.name}</span>
@@ -147,7 +147,7 @@ export default function BlogSidebar({
           最新の記事とアプリストア業界のトレンドをお届けします。
         </p>
         <Link
-          href="/newsletter"
+          href="#newsletter"
           className="inline-flex items-center justify-center w-full px-4 py-2 bg-primary-gradient text-white font-medium rounded-lg hover:shadow-md transition-all"
         >
           購読する

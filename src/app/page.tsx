@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Header from '@/components/Header'
 import BlogHero from '@/components/BlogHero'
 import ArticleCard from '@/components/ArticleCard'
@@ -15,12 +16,22 @@ import type { Article } from '@/lib/articles'
 const categoryKeys = ['market_analysis', 'global_trends', 'law_regulation', 'tech_deep_dive'] as const
 const categories = ['すべて', ...categoryKeys.map(key => getCategoryDisplayName(key))]
 
-export default function HomePage() {
+function HomePageContent() {
+  const searchParams = useSearchParams()
   const [activeCategory, setActiveCategory] = useState('すべて')
   const [articles, setArticles] = useState<Article[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
+
+  // URLパラメーターからカテゴリを取得してフィルタを設定
+  useEffect(() => {
+    const categoryParam = searchParams.get('category')
+    if (categoryParam && categoryKeys.includes(categoryParam as any)) {
+      const displayName = getCategoryDisplayName(categoryParam as any)
+      setActiveCategory(displayName)
+    }
+  }, [searchParams])
 
   // 記事データの取得
   useEffect(() => {
@@ -154,5 +165,13 @@ export default function HomePage() {
       </main>
       <Footer />
     </>
+  )
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HomePageContent />
+    </Suspense>
   )
 }
