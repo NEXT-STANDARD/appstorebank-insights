@@ -1,4 +1,8 @@
 import { supabase } from './supabase'
+
+// Supabaseが利用できない場合のフォールバック
+const isSupabaseAvailable = () => supabase !== null
+
 import { User } from '@supabase/supabase-js'
 
 // ユーザーの権限レベル（Supabaseテーブルの制約に合わせる）
@@ -16,8 +20,12 @@ export interface ExtendedUser extends User {
 // 現在のユーザーを取得
 export async function getCurrentUser(): Promise<{ user: ExtendedUser | null, error: any }> {
   try {
+    if (!isSupabaseAvailable()) {
+      return { user: null, error: 'Supabase not available' }
+    }
+    
     // セッションを確認
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    const { data: { session }, error: sessionError } = await supabase!!.auth.getSession()
     
     if (sessionError) {
       console.error('Session error:', sessionError)
@@ -31,7 +39,7 @@ export async function getCurrentUser(): Promise<{ user: ExtendedUser | null, err
     const user = session.user
 
     // プロファイル情報を取得
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile, error: profileError } = await supabase!!
       .from('profiles')
       .select('display_name, user_role, avatar_url')
       .eq('id', user.id)
@@ -72,7 +80,7 @@ export async function canEditArticles(): Promise<boolean> {
 
 // ログイン
 export async function signIn(email: string, password: string) {
-  const { data, error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase!.auth.signInWithPassword({
     email,
     password,
   })
@@ -87,7 +95,7 @@ export async function signIn(email: string, password: string) {
 
 // ログイン（プロファイル情報付き）
 export async function signInWithPassword(email: string, password: string) {
-  const { data, error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase!.auth.signInWithPassword({
     email,
     password,
   })
@@ -102,7 +110,7 @@ export async function signInWithPassword(email: string, password: string) {
   }
 
   // プロファイル情報を取得
-  const { data: profile, error: profileError } = await supabase
+  const { data: profile, error: profileError } = await supabase!
     .from('profiles')
     .select('display_name, user_role, avatar_url')
     .eq('id', data.user.id)
@@ -126,7 +134,7 @@ export async function signInWithPassword(email: string, password: string) {
 
 // ログアウト
 export async function signOut() {
-  const { error } = await supabase.auth.signOut()
+  const { error } = await supabase!.auth.signOut()
   
   if (error) {
     console.error('Sign out error:', error)
@@ -154,7 +162,7 @@ export async function updateProfile(userId: string, updates: {
   user_role?: UserRole
   avatar_url?: string
 }) {
-  const { data, error } = await supabase
+  const { data, error } = await supabase!
     .from('profiles')
     .update(updates)
     .eq('id', userId)
@@ -177,7 +185,11 @@ export function hasRole(user: ExtendedUser | null, allowedRoles: UserRole[]): bo
 
 // 認証状態の変更を監視
 export function onAuthStateChange(callback: (user: ExtendedUser | null) => void) {
-  return supabase.auth.onAuthStateChange(async (event, session) => {
+  if (!isSupabaseAvailable()) {
+    return { data: { subscription: null } }
+  }
+  
+  return supabase!.auth.onAuthStateChange(async (event, session) => {
     if (session?.user) {
       const { user } = await getCurrentUser()
       callback(user)
@@ -189,7 +201,7 @@ export function onAuthStateChange(callback: (user: ExtendedUser | null) => void)
 
 // パスワードリセット
 export async function resetPassword(email: string) {
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+  const { error } = await supabase!.auth.resetPasswordForEmail(email, {
     redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3004'}/admin/reset-password`,
   })
 
@@ -203,7 +215,7 @@ export async function resetPassword(email: string) {
 
 // パスワード更新
 export async function updatePassword(newPassword: string) {
-  const { error } = await supabase.auth.updateUser({
+  const { error } = await supabase!.auth.updateUser({
     password: newPassword
   })
 

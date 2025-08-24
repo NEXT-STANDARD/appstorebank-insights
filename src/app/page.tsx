@@ -9,6 +9,7 @@ import CategoryFilter from '@/components/CategoryFilter'
 import BlogSidebar from '@/components/BlogSidebar'
 import Newsletter from '@/components/Newsletter'
 import Footer from '@/components/Footer'
+import ScrollToTopButton from '@/components/ScrollToTopButton'
 import { getPublishedArticles, getCategoryDisplayName } from '@/lib/articles'
 import type { Article } from '@/lib/articles'
 
@@ -164,6 +165,7 @@ function HomePageContent() {
         <Newsletter />
       </main>
       <Footer />
+      <ScrollToTopButton />
     </>
   )
 }

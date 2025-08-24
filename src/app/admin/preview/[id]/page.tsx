@@ -1,74 +1,135 @@
-import { getArticleBySlug, incrementViewCount, getCategoryDisplayName } from '@/lib/articles'
-import { notFound } from 'next/navigation'
-import { Metadata } from 'next'
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
+import { supabase } from '@/lib/supabase'
+import { getCategoryDisplayName } from '@/lib/articles'
 import ShareButtons from '@/components/ShareButtons'
-import StructuredData from '@/components/StructuredData'
-import Breadcrumb, { getArticleBreadcrumb } from '@/components/Breadcrumb'
 import { ScrollToTopButtonWithProgress } from '@/components/ScrollToTopButton'
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const resolvedParams = await params
-  const { article } = await getArticleBySlug(resolvedParams.slug)
-  
-  if (!article) {
-    return {
-      title: '記事が見つかりません',
-    }
-  }
-
-  const ogImage = article.cover_image_url || `/api/og?title=${encodeURIComponent(article.title)}&category=${encodeURIComponent(getCategoryDisplayName(article.category))}`
-
-  return {
-    title: article.title,
-    description: article.excerpt || article.subtitle || article.title,
-    keywords: article.tags,
-    authors: [{ name: article.author?.display_name || 'AppStoreBank編集部' }],
-    openGraph: {
-      title: article.title,
-      description: article.excerpt || article.subtitle || article.title,
-      type: 'article',
-      publishedTime: article.published_at || article.created_at,
-      modifiedTime: article.updated_at || article.published_at || article.created_at,
-      authors: [article.author?.display_name || 'AppStoreBank編集部'],
-      tags: article.tags,
-      images: [
-        {
-          url: ogImage,
-          width: 1200,
-          height: 630,
-          alt: article.title,
-        }
-      ],
-      siteName: 'AppStoreBank Insights',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: article.title,
-      description: article.excerpt || article.subtitle || article.title,
-      images: [ogImage],
-    },
-    alternates: {
-      canonical: `https://insights.appstorebank.com/articles/${article.slug}`,
-    },
+interface Article {
+  id: string
+  slug: string
+  title: string
+  subtitle?: string
+  content: string
+  excerpt?: string
+  category: string
+  tags?: string[]
+  status: string
+  is_premium: boolean
+  is_featured?: boolean
+  author_id?: string
+  published_at?: string
+  created_at: string
+  updated_at: string
+  cover_image_url?: string
+  reading_time?: number
+  author?: {
+    id: string
+    display_name: string
+    avatar_url?: string
   }
 }
 
-export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
-  const resolvedParams = await params
-  const { article, error } = await getArticleBySlug(resolvedParams.slug)
+export default function PreviewArticlePage() {
+  const params = useParams()
+  const articleId = params.id as string
+  const [article, setArticle] = useState<Article | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-  if (error || !article) {
-    notFound()
+  useEffect(() => {
+    loadArticle()
+  }, [articleId])
+
+  const loadArticle = async () => {
+    try {
+      if (!supabase) {
+        console.error('Supabase client is not available')
+        return
+      }
+
+      const { data, error } = await supabase
+        .from('articles')
+        .select(`
+          *,
+          profiles!articles_author_id_fkey (
+            id,
+            display_name,
+            avatar_url
+          )
+        `)
+        .eq('id', articleId)
+        .single()
+
+      if (error) {
+        console.error('Error loading article:', error)
+      } else if (data) {
+        setArticle({
+          ...data,
+          author: data.profiles
+        })
+      }
+    } catch (error) {
+      console.error('Error:', error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  // 閲覧数をインクリメント（非同期で実行）
-  incrementViewCount(article.id)
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-neutral-600">記事を読み込み中...</div>
+      </div>
+    )
+  }
+
+  if (!article) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-neutral-600">記事が見つかりません</div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-white">
-      <StructuredData type="article" article={article} />
+      {/* プレビューヘッダー */}
+      <div className="bg-yellow-50 border-b-2 border-yellow-200 px-4 py-3">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <span className="text-yellow-800 font-medium">📝 プレビューモード</span>
+            <span className={`px-2 py-1 text-xs rounded-full ${
+              article.status === 'published' 
+                ? 'bg-green-100 text-green-800' 
+                : article.status === 'draft'
+                ? 'bg-yellow-100 text-yellow-800'
+                : 'bg-gray-100 text-gray-800'
+            }`}>
+              {article.status === 'published' ? '公開済み' : 
+               article.status === 'draft' ? '下書き' : 'アーカイブ'}
+            </span>
+          </div>
+          <div className="flex items-center space-x-4">
+            <Link 
+              href={`/admin/articles/${article.id}/edit`}
+              className="text-blue-600 hover:text-blue-700 text-sm"
+            >
+              編集に戻る
+            </Link>
+            <Link 
+              href="/admin/articles"
+              className="text-neutral-600 hover:text-neutral-700 text-sm"
+            >
+              記事一覧
+            </Link>
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-neutral-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -96,7 +157,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         <div className="relative h-96 w-full">
           <img
             src={article.cover_image_url}
-            alt={`${article.title} - ${getCategoryDisplayName(article.category)}の記事のカバー画像`}
+            alt={`${article.title} - プレビュー画像`}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -119,11 +180,6 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           </div>
         </div>
       )}
-
-      {/* Breadcrumb */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <Breadcrumb items={getArticleBreadcrumb(article.category, article.title)} />
-      </div>
 
       {/* Article Content */}
       <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -152,7 +208,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             {article.author?.avatar_url ? (
               <img
                 src={article.author.avatar_url}
-                alt={`${article.author.display_name || 'AppStoreBank編集部'}のプロフィール画像`}
+                alt={`${article.author.display_name}のプロフィール画像`}
                 className="w-12 h-12 rounded-full"
               />
             ) : (
@@ -290,11 +346,6 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             </div>
           </div>
         )}
-
-        {/* Share Buttons */}
-        <div className="mt-12 pt-8 border-t border-neutral-200">
-          <ShareButtons title={article.title} slug={article.slug} />
-        </div>
       </article>
 
       {/* Footer */}

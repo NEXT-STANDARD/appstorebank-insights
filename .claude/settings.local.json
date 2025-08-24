@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(/c:\\Users\\keita\\OneDrive\\Pictures\\Screenshots/**)",
+      "Bash(npm run type-check:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run build:*)",
+      "Bash(npx vercel:*)",
+      "Bash(echo $?)",
+      "Bash(git restore:*)",
+      "Bash(npm run dev:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

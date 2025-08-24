@@ -1,5 +1,8 @@
 import { supabase } from './supabase'
 
+// Supabaseが利用できない場合のフォールバック
+const isSupabaseAvailable = () => supabase !== null
+
 // 記事の型定義（Supabaseテーブル構造に合わせる）
 export interface Article {
   id: string
@@ -50,8 +53,12 @@ export async function getPublishedArticles(options: {
 } = {}) {
   const { category, limit = 10, offset = 0, featured = false } = options
   
+  if (!isSupabaseAvailable()) {
+    return { articles: [], hasMore: false }
+  }
+  
   // 1つ多く取得してhasMoreを判定
-  let query = supabase
+  let query = supabase!
     .from('articles')
     .select(`
       *,
@@ -102,7 +109,11 @@ export async function getPublishedArticles(options: {
 
 // 単一記事を取得
 export async function getArticleBySlug(slug: string) {
-  const { data, error } = await supabase
+  if (!isSupabaseAvailable()) {
+    return { article: null, error: 'Supabase not available' }
+  }
+  
+  const { data, error } = await supabase!
     .from('articles')
     .select(`
       *,
@@ -136,7 +147,12 @@ export async function getArticleBySlug(slug: string) {
 
 // 記事の閲覧数を増加
 export async function incrementViewCount(articleId: string) {
-  const { error } = await supabase.rpc('increment_view_count', {
+  if (!isSupabaseAvailable()) {
+    console.warn('Supabase not available, skipping view count increment')
+    return
+  }
+  
+  const { error } = await supabase!.rpc('increment_view_count', {
     article_id: articleId
   })
 
@@ -160,7 +176,11 @@ export async function createArticle(articleData: {
   tags?: string[]
   cover_image_url?: string
 }) {
-  const { data, error } = await supabase
+  if (!isSupabaseAvailable()) {
+    return { article: null, error: 'Supabase not available' }
+  }
+  
+  const { data, error } = await supabase!
     .from('articles')
     .insert({
       slug: articleData.slug,
@@ -212,7 +232,11 @@ export async function updateArticle(articleId: string, updates: Partial<{
     updateData.category = categoryMappingReverse[updates.category]
   }
 
-  const { data, error } = await supabase
+  if (!isSupabaseAvailable()) {
+    return { article: null, error: 'Supabase not available' }
+  }
+
+  const { data, error } = await supabase!
     .from('articles')
     .update(updateData)
     .eq('id', articleId)
@@ -229,7 +253,11 @@ export async function updateArticle(articleId: string, updates: Partial<{
 
 // 記事を削除（管理者用）
 export async function deleteArticle(articleId: string) {
-  const { error } = await supabase
+  if (!isSupabaseAvailable()) {
+    return { error: 'Supabase not available' }
+  }
+  
+  const { error } = await supabase!
     .from('articles')
     .delete()
     .eq('id', articleId)
@@ -244,7 +272,11 @@ export async function deleteArticle(articleId: string) {
 
 // 下書き記事一覧を取得（管理者用）
 export async function getDraftArticles(authorId?: string) {
-  let query = supabase
+  if (!isSupabaseAvailable()) {
+    return { articles: [], error: 'Supabase not available' }
+  }
+  
+  let query = supabase!
     .from('articles')
     .select(`
       *,

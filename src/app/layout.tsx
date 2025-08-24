@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import '../styles/globals.css'
+import StructuredData from '@/components/StructuredData'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -8,6 +9,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://insights.appstorebank.com'),
   title: {
     default: 'AppStoreBank Insights - 業界洞察メディア',
     template: '%s | AppStoreBank Insights'
@@ -70,6 +72,7 @@ export default function RootLayout({
   return (
     <html lang="ja" className={inter.className} suppressHydrationWarning>
       <body className="min-h-screen bg-light-gradient" suppressHydrationWarning>
+        <StructuredData type="website" />
         <div className="min-h-screen flex flex-col">
           {children}
         </div>

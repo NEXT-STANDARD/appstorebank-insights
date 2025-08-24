@@ -166,6 +166,12 @@ export default function ArticlesManagementPage() {
                     <td className="px-6 py-4">
                       <div className="flex space-x-2">
                         <Link
+                          href={`/admin/preview/${article.id}`}
+                          className="text-green-600 hover:text-green-700 text-sm"
+                        >
+                          プレビュー
+                        </Link>
+                        <Link
                           href={`/admin/articles/${article.id}/edit`}
                           className="text-primary-600 hover:text-primary-700 text-sm"
                         >
