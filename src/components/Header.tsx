@@ -13,11 +13,9 @@ export default function Header() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center space-x-4">
-            <Link href="/" className="flex items-center space-x-3">
-              <div className="bg-primary-gradient text-white font-bold text-xl px-3 py-1 rounded-lg shadow-md">
-                AppStoreBank
-              </div>
-              <span className="text-neutral-600 text-sm font-medium">Insights</span>
+            <Link href="/" className="flex items-center hover:opacity-90 transition-opacity">
+              <img src="/logo.png" alt="App Store Bank" className="h-10 w-auto" />
+              <span className="ml-3 text-neutral-600 text-sm font-medium">Insights</span>
             </Link>
           </div>
 

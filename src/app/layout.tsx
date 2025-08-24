@@ -54,6 +54,10 @@ export const metadata: Metadata = {
     images: ['/api/og?title=アプリストア業界の専門メディア&category=業界洞察'],
     creator: '@AppStoreBank',
   },
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
   robots: {
     index: true,
     follow: true,
