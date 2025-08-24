@@ -66,7 +66,9 @@ export default function ImageSelector({
 
   const handleImageSelect = async (image: UnsplashImage) => {
     // Unsplash利用規約に従ってダウンロードを追跡
-    await trackDownload(image.id)
+    if (image.links.download_location) {
+      await trackDownload(image.links.download_location)
+    }
     onImageSelect(image.urls.regular)
   }
 

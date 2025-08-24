@@ -23,6 +23,8 @@ export default function AnalyticsPage() {
 
   const loadAnalytics = async () => {
     try {
+      if (!supabase) return
+      
       // 記事統計を取得
       const { data: articlesData } = await supabase
         .from('articles')

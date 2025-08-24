@@ -16,6 +16,7 @@ export interface Article {
   status: 'draft' | 'published' | 'archived'
   is_premium: boolean
   is_featured?: boolean
+  technical_level?: 'beginner' | 'intermediate' | 'advanced' | 'expert'
   author_id?: string
   published_at?: string
   created_at: string
@@ -49,9 +50,13 @@ export async function getPublishedArticles(options: {
   category?: string
   limit?: number
   offset?: number
+  page?: number
   featured?: boolean
 } = {}) {
-  const { category, limit = 10, offset = 0, featured = false } = options
+  const { category, limit = 10, offset, page, featured = false } = options
+  
+  // pageが指定されている場合、offsetを計算
+  const calculatedOffset = page ? (page - 1) * limit : (offset || 0)
   
   if (!isSupabaseAvailable()) {
     return { articles: [], hasMore: false }
@@ -71,13 +76,11 @@ export async function getPublishedArticles(options: {
     .eq('status', 'published')
     .not('published_at', 'is', null)
     .order('published_at', { ascending: false })
-    .range(offset, offset + limit)  // 1つ多く取得
+    .range(calculatedOffset, calculatedOffset + limit)  // 1つ多く取得
 
   if (category && category !== 'すべて') {
-    const dbCategory = categoryMappingReverse[category as keyof typeof categoryMappingReverse]
-    if (dbCategory) {
-      query = query.eq('category', dbCategory)
-    }
+    console.log('Filtering by category:', category)
+    query = query.eq('category', category)
   }
 
   if (featured) {
@@ -107,8 +110,72 @@ export async function getPublishedArticles(options: {
   return { articles, error: null, hasMore }
 }
 
+// カテゴリ別記事数を取得
+export async function getCategoryCount(category?: string): Promise<number> {
+  if (!isSupabaseAvailable()) {
+    return 0
+  }
+
+  let query = supabase!
+    .from('articles')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'published')
+    .not('published_at', 'is', null)
+
+  if (category && category !== 'すべて') {
+    query = query.eq('category', category)
+  }
+
+  const { count, error } = await query
+
+  if (error) {
+    console.error('Error fetching category count:', error)
+    return 0
+  }
+
+  return count || 0
+}
+
+// 全カテゴリの記事数を取得
+export async function getAllCategoryCounts(): Promise<Record<string, number>> {
+  if (!isSupabaseAvailable()) {
+    return {}
+  }
+
+  try {
+    // 全記事数
+    const totalResult = await getCategoryCount()
+    
+    // 各カテゴリの記事数
+    const categoryCountPromises = Object.keys(categoryMapping).map(async (key) => {
+      const count = await getCategoryCount(key)
+      return { key, count }
+    })
+    
+    const categoryResults = await Promise.all(categoryCountPromises)
+    
+    const counts: Record<string, number> = {
+      'すべて': totalResult
+    }
+    
+    categoryResults.forEach(({ key, count }) => {
+      const displayName = getCategoryDisplayName(key as keyof typeof categoryMapping)
+      counts[displayName] = count
+    })
+    
+    return counts
+  } catch (error) {
+    console.error('Error fetching all category counts:', error)
+    return {}
+  }
+}
+
 // 単一記事を取得
 export async function getArticleBySlug(slug: string) {
+  if (!slug) {
+    return { article: null, error: 'No slug provided' }
+  }
+
   if (!isSupabaseAvailable()) {
     return { article: null, error: 'Supabase not available' }
   }
@@ -129,6 +196,10 @@ export async function getArticleBySlug(slug: string) {
     .single()
 
   if (error) {
+    if (error.code === 'PGRST116') {
+      // 記事が見つからない場合（ログを出さない）
+      return { article: null, error: 'Article not found' }
+    }
     console.error('Error fetching article:', error)
     return { article: null, error }
   }

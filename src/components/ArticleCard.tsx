@@ -1,17 +1,11 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { useState } from 'react'
+import { getCategoryDisplayName, type Article } from '@/lib/articles'
+import TechnicalLevel from './TechnicalLevel'
 
 interface ArticleCardProps {
-  title: string
-  excerpt: string
-  category: string
-  publishedAt: string
-  readingTime: string
-  slug: string
-  thumbnail?: string
-  coverImageUrl?: string
-  tags?: string[]
+  article: Article
+  featured?: boolean
 }
 
 const categoryColors = {
@@ -22,22 +16,30 @@ const categoryColors = {
   'ニュース': 'bg-yellow-100 text-yellow-800',
 } as const
 
-export default function ArticleCard({
-  title,
-  excerpt,
-  category,
-  publishedAt,
-  readingTime,
-  slug,
-  thumbnail,
-  coverImageUrl,
-  tags = []
-}: ArticleCardProps) {
-  const categoryStyle = categoryColors[category as keyof typeof categoryColors] || 'bg-gray-100 text-gray-800'
+export default function ArticleCard({ article, featured = false }: ArticleCardProps) {
   const [imageError, setImageError] = useState(false)
   
-  const imageUrl = coverImageUrl || thumbnail
+  const categoryDisplayName = getCategoryDisplayName(article.category)
+  const categoryStyle = categoryColors[categoryDisplayName as keyof typeof categoryColors] || 'bg-gray-100 text-gray-800'
+  
+  const imageUrl = article.cover_image_url
   const shouldShowImage = imageUrl && !imageError && isValidImageUrl(imageUrl)
+  
+  // 日付フォーマット関数
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString)
+      if (isNaN(date.getTime())) {
+        return new Date().toLocaleDateString('ja-JP')
+      }
+      return date.toLocaleDateString('ja-JP')
+    } catch {
+      return new Date().toLocaleDateString('ja-JP')
+    }
+  }
+  
+  // 読書時間の計算（デフォルト5分）
+  const readingTime = article.reading_time || 5
   
   // 画像URLの妥当性をチェック
   function isValidImageUrl(url: string): boolean {
@@ -55,37 +57,44 @@ export default function ArticleCard({
   return (
     <article className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
       {/* Thumbnail */}
-      <div className="aspect-[16/9] overflow-hidden bg-gradient-to-br from-primary-100 to-secondary-100">
-        {shouldShowImage ? (
-          <img
-            src={imageUrl}
-            alt={title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            onError={() => setImageError(true)}
-            loading="lazy"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-secondary-100">
-            <div className="text-6xl opacity-30">
-              {category === '市場分析' && '📊'}
-              {category === 'グローバルトレンド' && '🌏'}
-              {category === '法規制' && '⚖️'}
-              {category === '技術解説' && '🔧'}
-              {category === 'ニュース' && '📰'}
+      <Link href={`/articles/${article.slug}`} className="block">
+        <div className="aspect-[16/9] overflow-hidden bg-gradient-to-br from-primary-100 to-secondary-100">
+          {shouldShowImage ? (
+            <img
+              src={imageUrl}
+              alt={article.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              onError={() => setImageError(true)}
+              loading="lazy"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-secondary-100">
+              <div className="text-6xl opacity-30">
+                {categoryDisplayName === '市場分析' && '📊'}
+                {categoryDisplayName === 'グローバルトレンド' && '🌏'}
+                {categoryDisplayName === '法規制' && '⚖️'}
+                {categoryDisplayName === '技術解説' && '🔧'}
+                {categoryDisplayName === 'ニュース' && '📰'}
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      </Link>
 
       {/* Content */}
       <div className="p-6">
         {/* Category & Meta */}
         <div className="flex items-center justify-between mb-3">
-          <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${categoryStyle}`}>
-            {category}
-          </span>
+          <div className="flex items-center space-x-2">
+            <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${categoryStyle}`}>
+              {categoryDisplayName}
+            </span>
+            {article.technical_level && article.category === 'tech_deep_dive' && (
+              <TechnicalLevel level={article.technical_level} size="sm" showLabel={false} />
+            )}
+          </div>
           <div className="flex items-center space-x-3 text-sm text-neutral-500">
-            <span>{new Date(publishedAt).toLocaleDateString('ja-JP')}</span>
+            <span>{formatDate(article.published_at || article.created_at)}</span>
             <span>•</span>
             <span>{readingTime}分</span>
           </div>
@@ -93,20 +102,20 @@ export default function ArticleCard({
 
         {/* Title */}
         <h3 className="text-xl font-bold text-neutral-800 mb-3 group-hover:text-primary-600 transition-colors line-clamp-2">
-          <Link href={`/articles/${slug}`}>
-            {title}
+          <Link href={`/articles/${article.slug}`}>
+            {article.title}
           </Link>
         </h3>
 
         {/* Excerpt */}
         <p className="text-neutral-600 text-sm leading-relaxed mb-4 line-clamp-3">
-          {excerpt}
+          {article.excerpt || article.subtitle || `${article.title}についての詳細記事です。`}
         </p>
 
         {/* Tags */}
-        {tags.length > 0 && (
+        {article.tags && article.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
-            {tags.slice(0, 3).map((tag) => (
+            {article.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag}
                 className="inline-block px-2 py-1 text-xs bg-neutral-100 text-neutral-600 rounded-md"
@@ -119,7 +128,7 @@ export default function ArticleCard({
 
         {/* Read More */}
         <Link
-          href={`/articles/${slug}`}
+          href={`/articles/${article.slug}`}
           className="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium text-sm transition-colors group"
         >
           続きを読む

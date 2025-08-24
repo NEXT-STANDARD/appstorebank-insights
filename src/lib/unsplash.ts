@@ -21,6 +21,7 @@ export interface UnsplashImage {
   }
   links: {
     html: string
+    download_location?: string
   }
 }
 
@@ -66,6 +67,7 @@ export async function searchImages(
       },
       links: {
         html: photo.links.html,
+        download_location: photo.links?.download_location
       }
     })) || []
 
@@ -114,9 +116,13 @@ export async function getImagesForCategory(
 }
 
 // ダウンロード追跡（Unsplash API利用規約による必要事項）
-export async function trackDownload(photoId: string): Promise<void> {
+export async function trackDownload(downloadLocation: string): Promise<void> {
   try {
-    await unsplash.photos.trackDownload({ downloadLocation: photoId })
+    if (!downloadLocation) {
+      console.warn('No download location provided for tracking')
+      return
+    }
+    await unsplash.photos.trackDownload({ downloadLocation })
   } catch (error) {
     console.error('Failed to track download:', error)
   }

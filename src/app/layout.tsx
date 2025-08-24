@@ -11,11 +11,17 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL('https://insights.appstorebank.com'),
   title: {
-    default: 'AppStoreBank Insights - 業界洞察メディア',
+    default: 'AppStoreBank Insights - アプリストア自由化・第三者アプリストア専門メディア',
     template: '%s | AppStoreBank Insights'
   },
-  description: 'アプリストア業界の専門的な洞察とトレンド分析。市場分析、グローバルトレンド、法規制解説、技術深層解説を提供。',
+  description: 'アプリストア自由化、第三者アプリストア参入の最新情報。2025年12月スマホ新法施行に向けた市場分析・技術解説・法規制情報を専門家が提供。',
   keywords: [
+    'アプリストア自由化',
+    '第三者アプリストア',
+    'スマホ新法',
+    'アプリストア競争',
+    'アプリストア比較',
+    'アプリストアレビュー',
     'アプリストア',
     '市場分析', 
     '業界トレンド',
@@ -26,26 +32,26 @@ export const metadata: Metadata = {
   authors: [{ name: 'AppStoreBank' }],
   creator: 'AppStoreBank',
   openGraph: {
-    title: 'AppStoreBank Insights - 業界洞察メディア',
-    description: 'アプリストア業界の専門的な洞察とトレンド分析',
+    title: 'AppStoreBank Insights - アプリストア業界の専門メディア',
+    description: 'アプリストア業界の最新トレンド、市場分析、法規制解説を提供',
     type: 'website',
     locale: 'ja_JP',
     url: 'https://insights.appstorebank.com',
     siteName: 'AppStoreBank Insights',
     images: [
       {
-        url: '/api/og?title=AppStoreBank Insights&category=業界洞察メディア',
+        url: '/api/og?title=アプリストア業界の専門メディア&category=業界洞察',
         width: 1200,
         height: 630,
-        alt: 'AppStoreBank Insights - 業界洞察メディア',
+        alt: 'AppStoreBank Insights - アプリストア業界の専門メディア',
       }
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AppStoreBank Insights',
-    description: 'アプリストア業界の専門的な洞察とトレンド分析',
-    images: ['/api/og?title=AppStoreBank Insights&category=業界洞察メディア'],
+    title: 'AppStoreBank Insights - アプリストア業界の専門メディア',
+    description: 'アプリストア業界の最新トレンド、市場分析、法規制解説を提供',
+    images: ['/api/og?title=アプリストア業界の専門メディア&category=業界洞察'],
     creator: '@AppStoreBank',
   },
   robots: {

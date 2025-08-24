@@ -21,6 +21,7 @@ export default function NewArticlePage() {
     status: 'draft',
     is_premium: false,
     is_featured: false,
+    technical_level: 'intermediate' as 'beginner' | 'intermediate' | 'advanced' | 'expert',
     cover_image_url: ''
   })
   const [showImageSelector, setShowImageSelector] = useState(false)
@@ -44,7 +45,7 @@ export default function NewArticlePage() {
       })
 
       if (error) {
-        alert('記事の作成に失敗しました: ' + error.message)
+        alert('記事の作成に失敗しました: ' + (typeof error === 'string' ? error : error.message))
       } else {
         alert('記事を作成しました')
         router.push('/admin/articles')
@@ -61,6 +62,11 @@ export default function NewArticlePage() {
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
+  }
+
+  const handleTagsChange = (tagsString: string) => {
+    const tags = tagsString.split(',').map(tag => tag.trim()).filter(tag => tag !== '')
+    setFormData({ ...formData, tags })
   }
 
   return (
@@ -132,6 +138,20 @@ export default function NewArticlePage() {
               <option value="law_regulation">法規制</option>
               <option value="tech_deep_dive">技術解説</option>
             </select>
+          </div>
+
+          {/* Tags */}
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-2">
+              タグ（カンマ区切り）
+            </label>
+            <input
+              type="text"
+              value={formData.tags.join(', ')}
+              onChange={(e) => handleTagsChange(e.target.value)}
+              className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              placeholder="タグ1, タグ2, タグ3"
+            />
           </div>
 
           {/* Excerpt */}
@@ -222,6 +242,25 @@ export default function NewArticlePage() {
               </div>
             )}
           </div>
+
+          {/* Technical Level (for tech articles) */}
+          {formData.category === 'tech_deep_dive' && (
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                技術難易度
+              </label>
+              <select
+                value={formData.technical_level}
+                onChange={(e) => setFormData({ ...formData, technical_level: e.target.value as any })}
+                className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              >
+                <option value="beginner">初級 - 基礎知識があれば理解可能</option>
+                <option value="intermediate">中級 - 実務経験が必要</option>
+                <option value="advanced">上級 - 専門知識が必要</option>
+                <option value="expert">エキスパート - 高度な専門知識が必要</option>
+              </select>
+            </div>
+          )}
 
           {/* Status and Premium */}
           <div className="flex space-x-6">

@@ -52,6 +52,8 @@ export default function EditArticlePage() {
 
   const loadArticle = async () => {
     try {
+      if (!supabase) return
+      
       const { data, error } = await supabase
         .from('articles')
         .select('*')
@@ -111,6 +113,8 @@ export default function EditArticlePage() {
         updateData.published_at = new Date().toISOString()
       }
 
+      if (!supabase) return
+      
       const { error } = await supabase
         .from('articles')
         .update(updateData)
@@ -136,6 +140,8 @@ export default function EditArticlePage() {
 
     setIsSaving(true)
     try {
+      if (!supabase) return
+      
       const { error } = await supabase
         .from('articles')
         .delete()

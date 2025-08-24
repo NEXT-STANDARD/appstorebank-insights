@@ -265,13 +265,13 @@ export default function PreviewArticlePage() {
                 <p className="text-neutral-700 leading-relaxed mb-4">{children}</p>
               ),
               ul: ({ children }) => (
-                <ul className="list-disc list-inside space-y-2 mb-4 text-neutral-700">{children}</ul>
+                <ul className="list-disc pl-6 space-y-2 mb-4 text-neutral-700">{children}</ul>
               ),
               ol: ({ children }) => (
-                <ol className="list-decimal list-inside space-y-2 mb-4 text-neutral-700">{children}</ol>
+                <ol className="list-decimal pl-6 space-y-2 mb-4 text-neutral-700">{children}</ol>
               ),
               li: ({ children }) => (
-                <li className="ml-4">{children}</li>
+                <li className="leading-relaxed">{children}</li>
               ),
               blockquote: ({ children }) => (
                 <blockquote className="border-l-4 border-primary-500 pl-4 italic text-neutral-600 my-4">

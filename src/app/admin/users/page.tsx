@@ -22,6 +22,8 @@ export default function UsersPage() {
 
   const loadUsers = async () => {
     try {
+      if (!supabase) return
+      
       const { data, error } = await supabase
         .from('profiles')
         .select('*')

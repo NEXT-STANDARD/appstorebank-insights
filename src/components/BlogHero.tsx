@@ -15,10 +15,16 @@ export default function BlogHero() {
   useEffect(() => {
     const loadFeaturedArticle = async () => {
       try {
-        // 最新の公開記事を1件取得（将来的に注目記事機能を追加可能）
-        const { articles } = await getPublishedArticles({ limit: 1 })
+        // 注目記事として表示設定された記事を取得
+        const { articles } = await getPublishedArticles({ featured: true, limit: 1 })
         if (articles.length > 0) {
           setFeaturedArticle(articles[0])
+        } else {
+          // 注目記事がない場合は最新記事を表示
+          const { articles: latestArticles } = await getPublishedArticles({ limit: 1 })
+          if (latestArticles.length > 0) {
+            setFeaturedArticle(latestArticles[0])
+          }
         }
       } catch (error) {
         console.error('Failed to load featured article:', error)
@@ -83,6 +89,9 @@ export default function BlogHero() {
             {/* Image */}
             <div className="md:w-1/2">
               <div className="aspect-[16/10] md:aspect-auto md:h-full relative overflow-hidden">
+                <Link href={`/articles/${featuredArticle.slug}`} className="absolute inset-0 z-10">
+                  <span className="sr-only">記事を読む</span>
+                </Link>
                 {featuredArticle.cover_image_url ? (
                   <Image
                     src={featuredArticle.cover_image_url}
@@ -101,7 +110,7 @@ export default function BlogHero() {
                   </div>
                 )}
                 {/* Category Badge */}
-                <div className="absolute top-4 left-4">
+                <div className="absolute top-4 left-4 z-20">
                   <span className="inline-block px-3 py-1.5 bg-primary-600 text-white text-sm font-medium rounded-lg shadow-lg">
                     注目記事
                   </span>

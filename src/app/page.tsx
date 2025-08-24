@@ -10,7 +10,7 @@ import BlogSidebar from '@/components/BlogSidebar'
 import Newsletter from '@/components/Newsletter'
 import Footer from '@/components/Footer'
 import ScrollToTopButton from '@/components/ScrollToTopButton'
-import { getPublishedArticles, getCategoryDisplayName } from '@/lib/articles'
+import { getPublishedArticles, getCategoryDisplayName, getAllCategoryCounts } from '@/lib/articles'
 import type { Article } from '@/lib/articles'
 
 // カテゴリマッピング
@@ -24,146 +24,156 @@ function HomePageContent() {
   const [isLoading, setIsLoading] = useState(true)
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
+  const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({})
 
   // URLパラメーターからカテゴリを取得してフィルタを設定
   useEffect(() => {
     const categoryParam = searchParams.get('category')
-    if (categoryParam && categoryKeys.includes(categoryParam as any)) {
+    if (categoryParam) {
       const displayName = getCategoryDisplayName(categoryParam as any)
       setActiveCategory(displayName)
     }
   }, [searchParams])
 
-  // 記事データの取得
-  useEffect(() => {
-    loadArticles()
-  }, [])
-
-  const loadArticles = async (pageNum = 1, reset = true) => {
+  // 記事を読み込む
+  const loadArticles = async (categoryFilter: string, pageNum: number = 1, reset: boolean = true) => {
+    setIsLoading(true)
     try {
-      setIsLoading(pageNum === 1)
-      const { articles: newArticles, hasMore: moreArticles } = await getPublishedArticles({ 
-        limit: 12,
-        offset: (pageNum - 1) * 12
+      let category: string | undefined = undefined
+      
+      if (categoryFilter !== 'すべて') {
+        // カテゴリ表示名から内部IDを取得
+        category = categoryKeys.find(key => getCategoryDisplayName(key) === categoryFilter)
+      }
+      
+      console.log('Loading articles with filter:', { 
+        categoryFilter, 
+        category, 
+        categoryKeys,
+        mappedCategories: categoryKeys.map(key => ({ key, display: getCategoryDisplayName(key) }))
+      })
+
+      const { articles: newArticles, hasMore: moreAvailable } = await getPublishedArticles({
+        category,
+        page: pageNum,
+        limit: 6
       })
       
+      console.log('Loaded articles:', newArticles.length, 'articles for category:', category)
+
       if (reset) {
         setArticles(newArticles)
       } else {
         setArticles(prev => [...prev, ...newArticles])
       }
-      
-      setHasMore(moreArticles)
-      setPage(pageNum)
+      setHasMore(moreAvailable)
     } catch (error) {
-      console.error('Error loading articles:', error)
-    } finally {
-      setIsLoading(false)
+      console.error('記事の読み込みに失敗しました:', error)
     }
+    setIsLoading(false)
   }
 
+  // カテゴリ数を読み込み
+  useEffect(() => {
+    const loadCategoryCounts = async () => {
+      const counts = await getAllCategoryCounts()
+      console.log('Loaded category counts:', counts)
+      setCategoryCounts(counts)
+    }
+    loadCategoryCounts()
+  }, [])
+
+  // 初期読み込み
+  useEffect(() => {
+    setPage(1)
+    loadArticles(activeCategory, 1, true)
+  }, [activeCategory])
+
+  // カテゴリ変更
+  const handleCategoryChange = (category: string) => {
+    setActiveCategory(category)
+    setPage(1)
+  }
+
+  // もっと読む
   const loadMore = () => {
-    if (!isLoading && hasMore) {
-      loadArticles(page + 1, false)
-    }
+    const nextPage = page + 1
+    setPage(nextPage)
+    loadArticles(activeCategory, nextPage, false)
   }
 
-  // カテゴリによる記事フィルタリング
-  const filteredArticles = activeCategory === 'すべて' 
-    ? articles 
-    : articles.filter(article => getCategoryDisplayName(article.category) === activeCategory)
+  // 全記事を表示（注目記事セクションは削除）
+
   return (
     <>
       <Header />
-      <main className="flex-1">
-        <BlogHero />
-        
-        {/* Main Content */}
-        <section className="py-16 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-              {/* Main Content */}
-              <div className="lg:col-span-3 space-y-8">
-                <CategoryFilter 
-                  categories={categories}
-                  activeCategory={activeCategory}
-                  onCategoryChange={setActiveCategory}
-                  articles={articles}
-                />
-                
-                {/* Loading State */}
-                {isLoading && page === 1 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {[...Array(6)].map((_, i) => (
-                      <div key={i} className="bg-white rounded-lg shadow-sm border border-neutral-200 p-6 animate-pulse">
-                        <div className="h-4 bg-neutral-200 rounded mb-4"></div>
-                        <div className="h-6 bg-neutral-200 rounded mb-2"></div>
-                        <div className="h-4 bg-neutral-200 rounded w-3/4 mb-4"></div>
-                        <div className="flex justify-between">
-                          <div className="h-4 bg-neutral-200 rounded w-1/4"></div>
-                          <div className="h-4 bg-neutral-200 rounded w-1/6"></div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {filteredArticles.map((article) => (
-                      <ArticleCard 
-                        key={article.slug} 
-                        title={article.title}
-                        excerpt={article.excerpt || ''}
-                        category={getCategoryDisplayName(article.category)}
-                        publishedAt={article.published_at || article.created_at}
-                        readingTime={article.reading_time?.toString() || '5'}
-                        slug={article.slug}
-                        tags={article.tags || []}
-                        coverImageUrl={article.cover_image_url}
+      <BlogHero />
+      
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="lg:grid lg:grid-cols-12 lg:gap-8">
+          {/* メインコンテンツ */}
+          <div className="lg:col-span-8">
+            {/* カテゴリフィルター */}
+            <CategoryFilter
+              categories={categories}
+              activeCategory={activeCategory}
+              onCategoryChange={handleCategoryChange}
+              articles={articles}
+              categoryCounts={categoryCounts}
+            />
+
+            {/* 記事一覧 */}
+            <div className="mt-8">
+              {isLoading && articles.length === 0 ? (
+                <div className="flex justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+                </div>
+              ) : articles.length > 0 ? (
+                <>
+                  <div className="grid gap-6 md:grid-cols-2">
+                    {articles.map((article) => (
+                      <ArticleCard
+                        key={article.id}
+                        article={article}
+                        featured={false}
                       />
                     ))}
                   </div>
-                )}
 
-                {/* No results */}
-                {!isLoading && filteredArticles.length === 0 && (
-                  <div className="text-center py-12">
-                    <div className="text-6xl mb-4">📝</div>
-                    <h3 className="text-xl font-medium text-neutral-800 mb-2">
-                      {activeCategory}の記事はまだありません
-                    </h3>
-                    <p className="text-neutral-600">
-                      他のカテゴリをお試しください
-                    </p>
-                  </div>
-                )}
-
-                {/* Load More */}
-                {!isLoading && hasMore && activeCategory === 'すべて' && (
-                  <div className="text-center">
-                    <button 
-                      onClick={loadMore}
-                      disabled={isLoading}
-                      className="inline-flex items-center px-8 py-3 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 font-medium rounded-lg transition-colors disabled:opacity-50"
-                    >
-                      {isLoading ? '読み込み中...' : 'さらに記事を読み込む'}
-                      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Sidebar */}
-              <div className="lg:col-span-1">
-                <BlogSidebar />
-              </div>
+                  {/* もっと見るボタン */}
+                  {hasMore && (
+                    <div className="mt-12 text-center">
+                      <button
+                        onClick={loadMore}
+                        disabled={isLoading}
+                        className="inline-flex items-center px-6 py-3 border border-neutral-300 shadow-sm text-base font-medium rounded-lg text-neutral-700 bg-white hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isLoading ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-600 mr-2"></div>
+                        ) : null}
+                        {isLoading ? '読み込み中...' : 'もっと見る'}
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-neutral-500">記事がありません</p>
+                </div>
+              )}
             </div>
           </div>
-        </section>
 
-        <Newsletter />
+          {/* サイドバー */}
+          <div className="mt-12 lg:mt-0 lg:col-span-4">
+            <BlogSidebar />
+          </div>
+        </div>
       </main>
+
+      {/* Newsletter */}
+      <Newsletter />
+      
       <Footer />
       <ScrollToTopButton />
     </>

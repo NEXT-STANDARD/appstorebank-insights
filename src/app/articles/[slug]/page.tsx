@@ -3,13 +3,24 @@ import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import ShareButtons from '@/components/ShareButtons'
 import StructuredData from '@/components/StructuredData'
 import Breadcrumb, { getArticleBreadcrumb } from '@/components/Breadcrumb'
 import { ScrollToTopButtonWithProgress } from '@/components/ScrollToTopButton'
+import TableOfContents from '@/components/TableOfContents'
+import MobileTableOfContents from '@/components/MobileTableOfContents'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const resolvedParams = await params
+  
+  if (!resolvedParams.slug) {
+    return {
+      title: 'Article Not Found | AppStoreBank Insights',
+    }
+  }
+  
   const { article } = await getArticleBySlug(resolvedParams.slug)
   
   if (!article) {
@@ -57,6 +68,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params
+  
+  if (!resolvedParams.slug) {
+    notFound()
+  }
+  
   const { article, error } = await getArticleBySlug(resolvedParams.slug)
 
   if (error || !article) {
@@ -125,8 +141,11 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         <Breadcrumb items={getArticleBreadcrumb(article.category, article.title)} />
       </div>
 
-      {/* Article Content */}
-      <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* Article Content with Sidebar */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="lg:grid lg:grid-cols-12 lg:gap-8">
+          {/* Main Article */}
+          <article className="lg:col-span-8">
         {/* Article Meta (if no hero image) */}
         {!article.cover_image_url && (
           <>
@@ -209,26 +228,42 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                 <p className="text-neutral-700 leading-relaxed mb-4">{children}</p>
               ),
               ul: ({ children }) => (
-                <ul className="list-disc list-inside space-y-2 mb-4 text-neutral-700">{children}</ul>
+                <ul className="list-disc pl-6 space-y-2 mb-4 text-neutral-700">{children}</ul>
               ),
               ol: ({ children }) => (
-                <ol className="list-decimal list-inside space-y-2 mb-4 text-neutral-700">{children}</ol>
+                <ol className="list-decimal pl-6 space-y-2 mb-4 text-neutral-700">{children}</ol>
               ),
               li: ({ children }) => (
-                <li className="ml-4">{children}</li>
+                <li className="leading-relaxed">{children}</li>
               ),
               blockquote: ({ children }) => (
                 <blockquote className="border-l-4 border-primary-500 pl-4 italic text-neutral-600 my-4">
                   {children}
                 </blockquote>
               ),
-              code: ({ children }) => (
-                <code className="bg-neutral-100 px-2 py-1 rounded text-sm font-mono">{children}</code>
-              ),
+              code: ({ node, inline, className, children, ...props }: any) => {
+                const match = /language-(\w+)/.exec(className || '')
+                return !inline && match ? (
+                  <SyntaxHighlighter
+                    style={vscDarkPlus}
+                    language={match[1]}
+                    PreTag="div"
+                    className="rounded-lg text-sm mb-4"
+                    showLineNumbers={true}
+                    {...props}
+                  >
+                    {String(children).replace(/\n$/, '')}
+                  </SyntaxHighlighter>
+                ) : (
+                  <code className="bg-neutral-100 px-2 py-1 rounded text-sm font-mono" {...props}>
+                    {children}
+                  </code>
+                )
+              },
               pre: ({ children }) => (
-                <pre className="bg-neutral-900 text-neutral-100 p-4 rounded-lg overflow-x-auto mb-4">
+                <div className="mb-4">
                   {children}
-                </pre>
+                </div>
               ),
               table: ({ children }) => (
                 <div className="overflow-x-auto mb-6">
@@ -295,7 +330,14 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         <div className="mt-12 pt-8 border-t border-neutral-200">
           <ShareButtons title={article.title} slug={article.slug} />
         </div>
-      </article>
+          </article>
+
+          {/* Sidebar with Table of Contents */}
+          <aside className="hidden lg:block lg:col-span-4">
+            <TableOfContents content={article.content} />
+          </aside>
+        </div>
+      </div>
 
       {/* Footer */}
       <footer className="bg-neutral-900 text-white py-12 mt-20">
@@ -303,6 +345,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           <p>&copy; 2025 AppStoreBank Insights. All rights reserved.</p>
         </div>
       </footer>
+      
+      {/* Mobile Table of Contents */}
+      <MobileTableOfContents content={article.content} />
       
       {/* Scroll to Top Button */}
       <ScrollToTopButtonWithProgress />

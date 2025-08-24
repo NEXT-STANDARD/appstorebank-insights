@@ -9,7 +9,13 @@
       "Bash(echo $?)",
       "Bash(git restore:*)",
       "Bash(npm run dev:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(npm install:*)",
+      "Bash(npx kill-port:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(grep:*)",
+      "Read(/C:\\Users\\keita\\OneDrive\\Pictures\\Screenshots/**)",
+      "Read(/C:\\Users\\keita\\Documents\\AppStoreBank\\docs/**)"
     ],
     "deny": [],
     "ask": []

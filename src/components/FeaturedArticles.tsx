@@ -12,13 +12,24 @@ export default function FeaturedArticles() {
   useEffect(() => {
     const loadFeaturedArticles = async () => {
       try {
-        // とりあえず最新記事を表示（is_featuredカラム追加後に注目記事機能を有効化）
-        const { articles: latestArticles } = await getPublishedArticles({ 
+        // 注目記事として設定された記事を取得
+        const { articles: featuredArticles } = await getPublishedArticles({ 
+          featured: true,
           limit: 6 
         })
         
+        let articlesToShow = featuredArticles
+        
+        // 注目記事が6件未満の場合、最新記事で補完
+        if (featuredArticles.length < 6) {
+          const { articles: latestArticles } = await getPublishedArticles({ 
+            limit: 6 - featuredArticles.length 
+          })
+          articlesToShow = [...featuredArticles, ...latestArticles]
+        }
+        
         // デフォルト画像を設定
-        const articlesWithImages = await ensureArticleImages(latestArticles)
+        const articlesWithImages = await ensureArticleImages(articlesToShow)
         setArticles(articlesWithImages)
       } catch (error) {
         console.error('Failed to load articles:', error)
@@ -69,14 +80,8 @@ export default function FeaturedArticles() {
             {articles.map((article) => (
               <ArticleCard
                 key={article.id}
-                title={article.title}
-                excerpt={article.excerpt || ''}
-                category={getCategoryDisplayName(article.category)}
-                publishedAt={article.published_at || article.created_at}
-                readingTime={(article.reading_time || 5).toString()}
-                slug={article.slug}
-                coverImageUrl={article.cover_image_url}
-                tags={article.tags}
+                article={article}
+                featured={true}
               />
             ))}
           </div>

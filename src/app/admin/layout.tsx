@@ -207,7 +207,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-neutral-200">
             <Link
               href="/"
-              className="flex items-center space-x-2 text-neutral-600 hover:text-primary-600 text-sm transition-colors"
+              className="inline-flex items-center space-x-2 text-neutral-600 hover:text-primary-600 text-sm transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />

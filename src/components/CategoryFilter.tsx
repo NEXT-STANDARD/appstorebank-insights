@@ -8,6 +8,7 @@ interface CategoryFilterProps {
   activeCategory: string
   onCategoryChange: (category: string) => void
   articles?: Array<{ category: string }>
+  categoryCounts?: Record<string, number>
 }
 
 const categoryIcons = {
@@ -19,9 +20,13 @@ const categoryIcons = {
   'ニュース': '📰'
 } as const
 
-export default function CategoryFilter({ categories, activeCategory, onCategoryChange, articles = [] }: CategoryFilterProps) {
-  // カテゴリ別の記事数を計算
+export default function CategoryFilter({ categories, activeCategory, onCategoryChange, articles = [], categoryCounts = {} }: CategoryFilterProps) {
+  // カテゴリ別の記事数を取得
   const getCategoryCount = (category: string) => {
+    if (categoryCounts[category] !== undefined) {
+      return categoryCounts[category]
+    }
+    // フォールバック：現在の記事リストから計算
     if (category === 'すべて') return articles.length
     return articles.filter(article => getCategoryDisplayName(article.category) === category).length
   }
