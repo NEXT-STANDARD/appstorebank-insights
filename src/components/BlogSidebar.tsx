@@ -1,14 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-
-interface RecentArticle {
-  title: string
-  slug: string
-  publishedAt: string
-  category: string
-}
+import { getPublishedArticles, getCategoryDisplayName } from '@/lib/articles'
+import type { Article } from '@/lib/articles'
 
 interface PopularTag {
   name: string
@@ -16,45 +11,77 @@ interface PopularTag {
 }
 
 interface BlogSidebarProps {
-  recentArticles?: RecentArticle[]
-  popularTags?: PopularTag[]
+  // プロップスは不要（内部で実データを取得）
 }
 
-const mockRecentArticles: RecentArticle[] = [
-  {
-    title: "2025年のアプリストア市場予測：新たな競争の時代",
-    slug: "app-store-market-forecast-2025",
-    publishedAt: "2025-01-15",
-    category: "市場分析"
-  },
-  {
-    title: "EU Digital Markets Actの最新動向と日本への影響",
-    slug: "eu-dma-impact-japan",
-    publishedAt: "2025-01-12",
-    category: "法規制"
-  },
-  {
-    title: "サイドローディング実装のセキュリティ課題",
-    slug: "sideloading-security-challenges",
-    publishedAt: "2025-01-10",
-    category: "技術解説"
-  }
-]
-
-const mockPopularTags: PopularTag[] = [
-  { name: "スマホ新法", count: 45 },
-  { name: "アプリストア", count: 38 },
-  { name: "DMA", count: 32 },
-  { name: "サイドローディング", count: 28 },
-  { name: "セキュリティ", count: 25 },
-  { name: "競争政策", count: 22 }
-]
-
-export default function BlogSidebar({ 
-  recentArticles = mockRecentArticles,
-  popularTags = mockPopularTags 
-}: BlogSidebarProps) {
+export default function BlogSidebar() {
   const [searchQuery, setSearchQuery] = useState('')
+  const [recentArticles, setRecentArticles] = useState<Article[]>([])
+  const [popularTags, setPopularTags] = useState<PopularTag[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  // 実際のデータを取得
+  useEffect(() => {
+    const loadSidebarData = async () => {
+      try {
+        // 最新記事3件を取得
+        const { articles } = await getPublishedArticles({ limit: 3 })
+        setRecentArticles(articles)
+
+        // タグの集計（実装簡略化のため、記事からタグを集計）
+        const tagCounts: { [key: string]: number } = {}
+        articles.forEach(article => {
+          article.tags?.forEach(tag => {
+            tagCounts[tag] = (tagCounts[tag] || 0) + 1
+          })
+        })
+
+        // 人気タグトップ6を作成
+        const sortedTags = Object.entries(tagCounts)
+          .sort(([,a], [,b]) => b - a)
+          .slice(0, 6)
+          .map(([name, count]) => ({ name, count }))
+
+        // タグが少ない場合はデフォルトタグを追加
+        if (sortedTags.length < 6) {
+          const defaultTags = [
+            { name: "アプリストア", count: 15 },
+            { name: "スマホ新法", count: 12 },
+            { name: "セキュリティ", count: 8 },
+            { name: "DMA", count: 6 },
+            { name: "競争政策", count: 5 },
+            { name: "サイドローディング", count: 4 }
+          ]
+          
+          const combinedTags = [...sortedTags]
+          for (const defaultTag of defaultTags) {
+            if (combinedTags.length >= 6) break
+            if (!combinedTags.some(tag => tag.name === defaultTag.name)) {
+              combinedTags.push(defaultTag)
+            }
+          }
+          setPopularTags(combinedTags.slice(0, 6))
+        } else {
+          setPopularTags(sortedTags)
+        }
+      } catch (error) {
+        console.error('Failed to load sidebar data:', error)
+        // エラー時はデフォルトデータを表示
+        setPopularTags([
+          { name: "アプリストア", count: 15 },
+          { name: "スマホ新法", count: 12 },
+          { name: "セキュリティ", count: 8 },
+          { name: "DMA", count: 6 },
+          { name: "競争政策", count: 5 },
+          { name: "サイドローディング", count: 4 }
+        ])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadSidebarData()
+  }, [])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -91,27 +118,47 @@ export default function BlogSidebar({
       {/* Recent Articles */}
       <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
         <h3 className="text-lg font-bold text-neutral-800 mb-4">最新記事</h3>
-        <div className="space-y-4">
-          {recentArticles.map((article) => (
-            <article key={article.slug} className="group">
-              <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-primary-500 rounded-full mt-2 flex-shrink-0"></div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-medium text-neutral-800 group-hover:text-primary-600 transition-colors line-clamp-2 mb-1">
-                    <Link href={`/articles/${article.slug}`}>
-                      {article.title}
-                    </Link>
-                  </h4>
-                  <div className="flex items-center space-x-2 text-xs text-neutral-500">
-                    <span>{new Date(article.publishedAt).toLocaleDateString('ja-JP')}</span>
-                    <span>•</span>
-                    <span className="text-primary-600">{article.category}</span>
+        {isLoading ? (
+          <div className="space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="flex items-start space-x-3">
+                  <div className="w-2 h-2 bg-gray-200 rounded-full mt-2 flex-shrink-0"></div>
+                  <div className="flex-1 min-w-0">
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded w-2/3"></div>
                   </div>
                 </div>
               </div>
-            </article>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {recentArticles.length > 0 ? (
+              recentArticles.map((article) => (
+                <article key={article.slug} className="group">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-2 h-2 bg-primary-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-medium text-neutral-800 group-hover:text-primary-600 transition-colors line-clamp-2 mb-1">
+                        <Link href={`/articles/${article.slug}`}>
+                          {article.title}
+                        </Link>
+                      </h4>
+                      <div className="flex items-center space-x-2 text-xs text-neutral-500">
+                        <span>{new Date(article.published_at || article.created_at).toLocaleDateString('ja-JP')}</span>
+                        <span>•</span>
+                        <span className="text-primary-600">{getCategoryDisplayName(article.category)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              ))
+            ) : (
+              <p className="text-neutral-500 text-sm">記事を読み込み中...</p>
+            )}
+          </div>
+        )}
         <Link 
           href="/"
           className="inline-flex items-center text-primary-600 hover:text-primary-700 text-sm font-medium mt-4 group"

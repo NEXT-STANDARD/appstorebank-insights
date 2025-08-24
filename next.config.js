@@ -56,7 +56,7 @@ const nextConfig = {
     CUSTOM_KEY: 'appstorebank-insights',
   },
   
-  // Headers設定（セキュリティ）
+  // Headers設定（セキュリティ + SSL）
   async headers() {
     return [
       {
@@ -74,15 +74,43 @@ const nextConfig = {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin',
           },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' https:;",
+          },
         ],
       },
     ]
   },
   
-  // リダイレクト設定
+  // リダイレクト設定（HTTPS強制）
   async redirects() {
     return [
-      // 旧URLから新URLへのリダイレクト（将来用）
+      // HTTP to HTTPS redirect in production
+      ...(process.env.NODE_ENV === 'production' 
+        ? [
+            {
+              source: '/:path*',
+              has: [
+                {
+                  type: 'header',
+                  key: 'x-forwarded-proto',
+                  value: 'http',
+                },
+              ],
+              destination: 'https://insights.appstorebank.com/:path*',
+              permanent: true,
+            },
+          ]
+        : []),
     ]
   },
 }
