@@ -1,39 +1,70 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
+import { useState, useEffect } from 'react'
+import { getPublishedArticles, getCategoryDisplayName } from '@/lib/articles'
+import type { Article } from '@/lib/articles'
 
-interface FeaturedArticle {
-  title: string
-  excerpt: string
-  category: string
-  publishedAt: string
-  readingTime: string
-  slug: string
-  thumbnail?: string
-  author: {
-    name: string
-    avatar?: string
+// BlogHeroコンポーネント - 実際のデータベースから最新記事を表示
+
+export default function BlogHero() {
+  const [featuredArticle, setFeaturedArticle] = useState<Article | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const loadFeaturedArticle = async () => {
+      try {
+        // 最新の公開記事を1件取得（将来的に注目記事機能を追加可能）
+        const { articles } = await getPublishedArticles({ limit: 1 })
+        if (articles.length > 0) {
+          setFeaturedArticle(articles[0])
+        }
+      } catch (error) {
+        console.error('Failed to load featured article:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadFeaturedArticle()
+  }, [])
+
+  if (isLoading) {
+    return (
+      <section className="relative bg-gradient-to-br from-primary-50 via-white to-secondary-50 py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-white rounded-2xl shadow-xl overflow-hidden animate-pulse">
+            <div className="md:flex">
+              <div className="md:w-1/2 h-64 md:h-80 bg-gray-200"></div>
+              <div className="md:w-1/2 p-8 md:p-12 space-y-4">
+                <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                <div className="h-8 bg-gray-200 rounded"></div>
+                <div className="h-20 bg-gray-200 rounded"></div>
+                <div className="flex justify-between">
+                  <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                  <div className="h-10 bg-gray-200 rounded w-1/4"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    )
   }
-}
 
-interface BlogHeroProps {
-  featuredArticle?: FeaturedArticle
-}
-
-const mockFeaturedArticle: FeaturedArticle = {
-  title: "アプリストア新時代：日本のスマートフォン市場に起こる革命的変化",
-  excerpt: "2025年、日本でもついにアプリストアの競争が本格化します。スマートフォン利用者が複数のアプリストアから選択できるようになることで、開発者、ユーザー、そして業界全体にどのような変化をもたらすのか。専門家の視点から詳しく解説します。",
-  category: "市場分析",
-  publishedAt: "2025-01-20",
-  readingTime: "12",
-  slug: "smartphone-market-revolution-japan-2025",
-  thumbnail: undefined,
-  author: {
-    name: "AppStoreBank編集部",
-    avatar: undefined
+  if (!featuredArticle) {
+    return (
+      <section className="relative bg-gradient-to-br from-primary-50 via-white to-secondary-50 py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center py-20">
+            <h2 className="text-3xl font-bold text-neutral-800 mb-4">記事を準備中です</h2>
+            <p className="text-neutral-600">最新の業界インサイトを準備中です。しばらくお待ちください。</p>
+          </div>
+        </div>
+      </section>
+    )
   }
-}
-
-export default function BlogHero({ featuredArticle = mockFeaturedArticle }: BlogHeroProps) {
   return (
     <section className="relative bg-gradient-to-br from-primary-50 via-white to-secondary-50 py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -52,16 +83,21 @@ export default function BlogHero({ featuredArticle = mockFeaturedArticle }: Blog
             {/* Image */}
             <div className="md:w-1/2">
               <div className="aspect-[16/10] md:aspect-auto md:h-full relative overflow-hidden">
-                {featuredArticle.thumbnail ? (
+                {featuredArticle.cover_image_url ? (
                   <Image
-                    src={featuredArticle.thumbnail}
+                    src={featuredArticle.cover_image_url}
                     alt={featuredArticle.title}
                     fill
                     className="object-cover hover:scale-105 transition-transform duration-300"
                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-primary-100 to-secondary-100 flex items-center justify-center">
-                    <div className="text-8xl opacity-30">📊</div>
+                    <div className="text-8xl opacity-30">
+                      {getCategoryDisplayName(featuredArticle.category) === '市場分析' && '📊'}
+                      {getCategoryDisplayName(featuredArticle.category) === 'グローバルトレンド' && '🌏'}
+                      {getCategoryDisplayName(featuredArticle.category) === '法規制' && '⚖️'}
+                      {getCategoryDisplayName(featuredArticle.category) === '技術解説' && '🔧'}
+                    </div>
                   </div>
                 )}
                 {/* Category Badge */}
@@ -76,11 +112,11 @@ export default function BlogHero({ featuredArticle = mockFeaturedArticle }: Blog
             {/* Content */}
             <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
               <div className="flex items-center space-x-2 text-sm text-primary-600 font-medium mb-3">
-                <span className="px-3 py-1 bg-primary-100 rounded-full">{featuredArticle.category}</span>
+                <span className="px-3 py-1 bg-primary-100 rounded-full">{getCategoryDisplayName(featuredArticle.category)}</span>
                 <span>•</span>
-                <span>{new Date(featuredArticle.publishedAt).toLocaleDateString('ja-JP')}</span>
+                <span>{new Date(featuredArticle.published_at || featuredArticle.created_at).toLocaleDateString('ja-JP')}</span>
                 <span>•</span>
-                <span>{featuredArticle.readingTime}分で読める</span>
+                <span>{featuredArticle.reading_time || 5}分で読める</span>
               </div>
 
               <h2 className="text-2xl md:text-3xl font-bold text-neutral-800 mb-4 leading-tight">
@@ -90,15 +126,15 @@ export default function BlogHero({ featuredArticle = mockFeaturedArticle }: Blog
               </h2>
 
               <p className="text-neutral-600 text-lg leading-relaxed mb-6 line-clamp-4">
-                {featuredArticle.excerpt}
+                {featuredArticle.excerpt || featuredArticle.subtitle || '最新の業界インサイトをお届けします。'}
               </p>
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  {featuredArticle.author.avatar ? (
+                  {featuredArticle.author?.avatar_url ? (
                     <Image
-                      src={featuredArticle.author.avatar}
-                      alt={featuredArticle.author.name}
+                      src={featuredArticle.author.avatar_url}
+                      alt={featuredArticle.author.display_name}
                       width={40}
                       height={40}
                       className="rounded-full"
@@ -106,12 +142,12 @@ export default function BlogHero({ featuredArticle = mockFeaturedArticle }: Blog
                   ) : (
                     <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
                       <span className="text-primary-600 font-medium text-sm">
-                        {featuredArticle.author.name.charAt(0)}
+                        {featuredArticle.author?.display_name?.charAt(0) || 'A'}
                       </span>
                     </div>
                   )}
                   <div>
-                    <p className="text-sm font-medium text-neutral-800">{featuredArticle.author.name}</p>
+                    <p className="text-sm font-medium text-neutral-800">{featuredArticle.author?.display_name || 'AppStoreBank編集部'}</p>
                     <p className="text-xs text-neutral-500">編集部</p>
                   </div>
                 </div>
