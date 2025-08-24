@@ -74,9 +74,7 @@ export default function AdminLoginPage() {
         {/* Header */}
         <div className="text-center">
           <div className="flex justify-center mb-6">
-            <div className="bg-primary-gradient text-white font-bold text-2xl px-4 py-2 rounded-xl shadow-lg">
-              AppStoreBank
-            </div>
+            <img src="/logo.png" alt="App Store Bank" className="h-12 w-auto" />
           </div>
           <h2 className="text-3xl font-bold text-neutral-800">管理者ログイン</h2>
           <p className="mt-2 text-neutral-600">

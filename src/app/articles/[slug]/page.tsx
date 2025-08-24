@@ -89,11 +89,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       <header className="bg-white shadow-sm border-b border-neutral-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center space-x-3">
-              <div className="bg-primary-gradient text-white font-bold text-lg px-3 py-1 rounded-lg">
-                AppStoreBank
-              </div>
-              <span className="text-neutral-600 font-medium">Insights</span>
+            <Link href="/" className="flex items-center hover:opacity-90 transition-opacity">
+              <img src="/logo.png" alt="App Store Bank" className="h-8 w-auto" />
+              <span className="ml-3 text-neutral-600 font-medium">Insights</span>
             </Link>
             <nav className="flex items-center space-x-6">
               <Link href="/" className="text-neutral-600 hover:text-neutral-900 text-sm">

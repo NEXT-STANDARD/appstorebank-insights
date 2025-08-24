@@ -37,9 +37,7 @@ export default function LogoutPage() {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="flex justify-center mb-6">
-            <div className="bg-primary-gradient text-white font-bold text-2xl px-4 py-2 rounded-xl shadow-lg">
-              AppStoreBank
-            </div>
+            <img src="/logo.png" alt="App Store Bank" className="h-12 w-auto" />
           </div>
 
           {isLoading ? (

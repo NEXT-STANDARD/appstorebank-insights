@@ -46,8 +46,8 @@ export default function Header() {
                   <Link href="/?category=law_regulation" className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-primary-600 transition-colors">
                     ⚖️ 法規制
                   </Link>
-                  <Link href="/?category=tech_deep_dive" className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-primary-600 transition-colors">
-                    🔧 技術解説
+                  <Link href="https://developer.appstorebank.com" className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-primary-600 transition-colors" target="_blank" rel="noopener noreferrer">
+                    🔧 技術解説 →
                   </Link>
                 </div>
               )}
@@ -112,8 +112,8 @@ export default function Header() {
               <Link href="/?category=law_regulation" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 px-3 transition-colors">
                 ⚖️ 法規制
               </Link>
-              <Link href="/?category=tech_deep_dive" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 px-3 transition-colors">
-                🔧 技術解説
+              <Link href="https://developer.appstorebank.com" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 px-3 transition-colors" target="_blank" rel="noopener noreferrer">
+                🔧 技術解説 →
               </Link>
             </div>
             <div className="pt-3 border-t border-neutral-200 space-y-3">

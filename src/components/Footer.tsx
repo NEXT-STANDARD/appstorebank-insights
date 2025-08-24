@@ -7,11 +7,9 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="bg-primary-gradient text-white font-bold text-lg px-3 py-1 rounded-lg shadow-md">
-                AppStoreBank
-              </div>
-              <span className="text-neutral-600 font-medium">Insights</span>
+            <div className="flex items-center mb-4">
+              <img src="/logo.png" alt="App Store Bank" className="h-8 w-auto" />
+              <span className="ml-3 text-neutral-600 font-medium">Insights</span>
             </div>
             <p className="text-neutral-600 text-sm leading-relaxed max-w-md">
               アプリストア業界の専門的な洞察とトレンド分析を提供する情報プラットフォーム。
@@ -39,8 +37,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/?category=tech_deep_dive" className="text-neutral-600 hover:text-primary-600 transition-colors">
-                  技術深層解説
+                <Link href="https://developer.appstorebank.com" className="text-neutral-600 hover:text-primary-600 transition-colors" target="_blank" rel="noopener noreferrer">
+                  技術解説 →
                 </Link>
               </li>
             </ul>
@@ -56,8 +54,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="https://developer.appstorebank.com" className="text-neutral-600 hover:text-primary-600 transition-colors">
-                  開発者ポータル
+                <Link href="https://developer.appstorebank.com" className="text-primary-600 hover:text-primary-700 font-semibold transition-colors" target="_blank" rel="noopener noreferrer">
+                  🔧 技術実装ガイド →
                 </Link>
               </li>
               <li>
