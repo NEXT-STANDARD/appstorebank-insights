@@ -406,3 +406,42 @@ function calculateReadingTime(content: string): number {
 export function getCategoryDisplayName(category: string): string {
   return categoryMapping[category as keyof typeof categoryMapping] || category
 }
+
+// 記事を検索
+export async function searchArticles(query: string, limit: number = 10) {
+  if (!isSupabaseAvailable()) {
+    return { articles: [], error: 'Supabase not available' }
+  }
+  
+  const { data, error } = await supabase!
+    .from('articles')
+    .select(`
+      *,
+      profiles!articles_author_id_fkey (
+        id,
+        display_name,
+        avatar_url
+      )
+    `)
+    .eq('status', 'published')
+    .not('published_at', 'is', null)
+    .or(`title.ilike.%${query}%,subtitle.ilike.%${query}%,excerpt.ilike.%${query}%,content.ilike.%${query}%`)
+    .order('published_at', { ascending: false })
+    .limit(limit)
+
+  if (error) {
+    console.error('Error searching articles:', error)
+    return { articles: [], error }
+  }
+
+  const articles: Article[] = data?.map(article => ({
+    ...article,
+    author: article.profiles ? {
+      id: article.profiles.id,
+      display_name: article.profiles.display_name,
+      avatar_url: article.profiles.avatar_url
+    } : undefined
+  })) || []
+
+  return { articles, error: null }
+}

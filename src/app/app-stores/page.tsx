@@ -2,6 +2,8 @@ import { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
+import { getAllAppStores, getAppStoresByStatus } from '@/lib/app-stores'
+import type { AppStore } from '@/lib/app-stores'
 
 export const metadata: Metadata = {
   title: 'アプリストア一覧・比較 2025年版 | 第三者アプリストアまとめ',
@@ -24,107 +26,44 @@ export const metadata: Metadata = {
   }
 }
 
-// 仮のデータ（将来的にはSupabaseから取得）
-const appStores = [
-  {
-    id: '1',
-    name: 'Google Play Store',
-    company: 'Google',
-    logo: '🟢',
-    status: 'available',
-    commission: '15-30%',
-    features: ['広大なアプリ数', 'Google決済統合', 'ファミリーリンク'],
-    devices: ['Android'],
-    url: 'https://play.google.com',
-    description: '世界最大のAndroidアプリストア。300万以上のアプリを提供。',
-    launchDate: '2008年10月',
-    isThirdParty: false
-  },
-  {
-    id: '2', 
-    name: 'App Store',
-    company: 'Apple',
-    logo: '🔵',
-    status: 'available',
-    commission: '15-30%',
-    features: ['厳格な審査', 'Apple決済', 'ファミリー共有'],
-    devices: ['iOS', 'iPadOS'],
-    url: 'https://apps.apple.com',
-    description: 'iOSデバイス専用の公式アプリストア。高品質なアプリを厳選。',
-    launchDate: '2008年7月',
-    isThirdParty: false
-  },
-  {
-    id: '3',
-    name: 'Amazon Appstore',
-    company: 'Amazon',
-    logo: '🟠',
-    status: 'coming_soon',
-    commission: '20-30%',
-    features: ['Amazonコイン', 'Fire TV対応', 'テスト配信'],
-    devices: ['Android', 'Fire OS'],
-    url: 'https://www.amazon.com/appstore',
-    description: 'Amazon独自のアプリストア。2025年12月日本展開予定。',
-    launchDate: '2025年12月予定',
-    isThirdParty: true
-  },
-  {
-    id: '4',
-    name: 'Samsung Galaxy Store',
-    company: 'Samsung',
-    logo: '🔷',
-    status: 'coming_soon',
-    commission: '30%',
-    features: ['Galaxy限定機能', 'ウォッチアプリ', 'テーマストア'],
-    devices: ['Samsung Galaxy'],
-    url: 'https://galaxystore.samsung.com',
-    description: 'Galaxy端末向け最適化アプリを提供。日本展開準備中。',
-    launchDate: '2025年12月予定',
-    isThirdParty: true
-  },
-  {
-    id: '5',
-    name: 'Epic Games Store',
-    company: 'Epic Games',
-    logo: '⚫',
-    status: 'planning',
-    commission: '12%',
-    features: ['低手数料', 'クリエイター支援', 'Unreal Engine統合'],
-    devices: ['Android', 'iOS（予定）'],
-    url: 'https://store.epicgames.com',
-    description: 'ゲーム特化型ストア。業界最低水準の手数料で話題。',
-    launchDate: '2026年予定',
-    isThirdParty: true
-  },
-  {
-    id: '6',
-    name: 'Microsoft Store',
-    company: 'Microsoft',
-    logo: '🟦',
-    status: 'planning',
-    commission: '12-15%',
-    features: ['Xbox統合', 'PWA対応', 'エンタープライズ向け'],
-    devices: ['Android', 'Windows'],
-    url: 'https://apps.microsoft.com',
-    description: 'Microsoft 365やXboxとの連携が特徴。モバイル展開検討中。',
-    launchDate: '未定',
-    isThirdParty: true
-  }
-]
-
+// ステータス表示マッピング
 const statusColors: Record<string, string> = {
   available: 'bg-green-100 text-green-800',
   coming_soon: 'bg-yellow-100 text-yellow-800',
-  planning: 'bg-gray-100 text-gray-800'
+  planning: 'bg-gray-100 text-gray-800',
+  discontinued: 'bg-red-100 text-red-800'
 }
 
 const statusLabels: Record<string, string> = {
   available: '利用可能',
   coming_soon: '準備中',
-  planning: '計画中'
+  planning: '計画中',
+  discontinued: '終了'
 }
 
-export default function AppStoresPage() {
+export default async function AppStoresPage() {
+  // Supabaseからアプリストア情報を取得
+  const { appStores, error } = await getAllAppStores()
+  
+  if (error || !appStores) {
+    // エラー時はフォールバック表示
+    return (
+      <>
+        <Header />
+        <main className="min-h-screen bg-gradient-to-b from-white to-neutral-50 flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-neutral-800 mb-4">アプリストア情報の読み込みに失敗しました</h1>
+            <p className="text-neutral-600 mb-8">しばらく時間をおいて再度アクセスしてください。</p>
+            <Link href="/" className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors">
+              ホームに戻る
+            </Link>
+          </div>
+        </main>
+        <Footer />
+      </>
+    )
+  }
+
   const availableStores = appStores.filter(s => s.status === 'available')
   const comingSoonStores = appStores.filter(s => s.status === 'coming_soon')
   const planningStores = appStores.filter(s => s.status === 'planning')
@@ -157,7 +96,7 @@ export default function AppStoresPage() {
                 <span className="ml-2">ストア掲載中</span>
               </div>
               <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
-                <span className="text-3xl font-bold">{appStores.filter(s => s.isThirdParty).length}</span>
+                <span className="text-3xl font-bold">{appStores.filter(s => s.is_third_party).length}</span>
                 <span className="ml-2">第三者ストア</span>
               </div>
               <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
@@ -200,7 +139,15 @@ export default function AppStoresPage() {
                 <div key={store.id} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center">
-                      <span className="text-4xl mr-3">{store.logo}</span>
+                      {store.logo_emoji ? (
+                        <span className="text-4xl mr-3">{store.logo_emoji}</span>
+                      ) : store.logo_url ? (
+                        <img src={store.logo_url} alt={store.name} className="w-12 h-12 mr-3 rounded" />
+                      ) : (
+                        <div className="w-12 h-12 mr-3 bg-neutral-200 rounded flex items-center justify-center">
+                          <span className="text-lg">📱</span>
+                        </div>
+                      )}
                       <div>
                         <h3 className="text-xl font-bold">{store.name}</h3>
                         <p className="text-sm text-neutral-600">{store.company}</p>
@@ -212,13 +159,15 @@ export default function AppStoresPage() {
                   </div>
                   <p className="text-neutral-700 mb-4">{store.description}</p>
                   <div className="space-y-2">
-                    <div className="flex items-center text-sm">
-                      <span className="font-medium mr-2">手数料:</span>
-                      <span className="text-neutral-600">{store.commission}</span>
-                    </div>
+                    {store.commission_rate && (
+                      <div className="flex items-center text-sm">
+                        <span className="font-medium mr-2">手数料:</span>
+                        <span className="text-neutral-600">{store.commission_rate}</span>
+                      </div>
+                    )}
                     <div className="flex items-center text-sm">
                       <span className="font-medium mr-2">対応:</span>
-                      <span className="text-neutral-600">{store.devices.join(', ')}</span>
+                      <span className="text-neutral-600">{store.supported_devices.join(', ')}</span>
                     </div>
                     <div className="flex flex-wrap gap-1 mt-3">
                       {store.features.map((feature, idx) => (
@@ -228,10 +177,12 @@ export default function AppStoresPage() {
                       ))}
                     </div>
                   </div>
-                  <a href={store.url} target="_blank" rel="noopener noreferrer" 
-                     className="mt-4 inline-flex items-center text-primary-600 hover:text-primary-700 font-medium">
-                    詳細を見る →
-                  </a>
+                  {store.website_url && (
+                    <a href={store.website_url} target="_blank" rel="noopener noreferrer" 
+                       className="mt-4 inline-flex items-center text-primary-600 hover:text-primary-700 font-medium">
+                      詳細を見る →
+                    </a>
+                  )}
                 </div>
               ))}
             </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { getPublishedArticles, getCategoryDisplayName } from '@/lib/articles'
 import type { Article } from '@/lib/articles'
 
@@ -19,6 +20,10 @@ export default function BlogSidebar() {
   const [recentArticles, setRecentArticles] = useState<Article[]>([])
   const [popularTags, setPopularTags] = useState<PopularTag[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [searchResults, setSearchResults] = useState<Article[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const [showSearchResults, setShowSearchResults] = useState(false)
+  const router = useRouter()
 
   // 実際のデータを取得
   useEffect(() => {
@@ -83,10 +88,40 @@ export default function BlogSidebar() {
     loadSidebarData()
   }, [])
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: 検索機能実装
-    console.log('Search:', searchQuery)
+    
+    if (!searchQuery.trim()) {
+      setShowSearchResults(false)
+      return
+    }
+    
+    setIsSearching(true)
+    try {
+      const response = await fetch(`/api/search/articles?q=${encodeURIComponent(searchQuery.trim())}&limit=5`)
+      const data = await response.json()
+      
+      if (response.ok) {
+        setSearchResults(data.articles || [])
+        setShowSearchResults(true)
+      } else {
+        console.error('Search error:', data.error)
+      }
+    } catch (error) {
+      console.error('Search request failed:', error)
+    } finally {
+      setIsSearching(false)
+    }
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setSearchQuery(value)
+    
+    // 入力が空になったら検索結果を非表示
+    if (!value.trim()) {
+      setShowSearchResults(false)
+    }
   }
 
   return (
@@ -99,20 +134,56 @@ export default function BlogSidebar() {
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleInputChange}
               placeholder="キーワードで検索..."
               className="w-full px-4 py-2 pr-10 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
             <button
               type="submit"
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-neutral-400 hover:text-primary-600"
+              disabled={isSearching}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-neutral-400 hover:text-primary-600 disabled:opacity-50"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+              {isSearching ? (
+                <div className="animate-spin w-5 h-5 border-2 border-primary-600 border-t-transparent rounded-full"></div>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              )}
             </button>
           </div>
         </form>
+        
+        {/* Search Results */}
+        {showSearchResults && (
+          <div className="mt-4 pt-4 border-t border-neutral-200">
+            <h4 className="text-sm font-medium text-neutral-700 mb-3">検索結果</h4>
+            {searchResults.length > 0 ? (
+              <div className="space-y-3">
+                {searchResults.map((article) => (
+                  <div key={article.slug} className="group">
+                    <Link
+                      href={`/articles/${article.slug}`}
+                      className="block text-sm text-neutral-600 hover:text-primary-600 transition-colors line-clamp-2"
+                    >
+                      {article.title}
+                    </Link>
+                    <div className="text-xs text-neutral-400 mt-1">
+                      {getCategoryDisplayName(article.category)}
+                    </div>
+                  </div>
+                ))}
+                {searchResults.length === 5 && (
+                  <div className="text-xs text-neutral-500 italic">
+                    さらに結果があります...
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-neutral-500">結果が見つかりませんでした</p>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Recent Articles */}
@@ -187,19 +258,6 @@ export default function BlogSidebar() {
         </div>
       </div>
 
-      {/* Newsletter Signup */}
-      <div className="bg-gradient-to-br from-primary-50 to-secondary-50 rounded-xl p-6 border border-primary-200">
-        <h3 className="text-lg font-bold text-neutral-800 mb-2">ニュースレター</h3>
-        <p className="text-neutral-600 text-sm mb-4">
-          最新の記事とアプリストア業界のトレンドをお届けします。
-        </p>
-        <Link
-          href="#newsletter"
-          className="inline-flex items-center justify-center w-full px-4 py-2 bg-primary-gradient text-white font-medium rounded-lg hover:shadow-md transition-all"
-        >
-          購読する
-        </Link>
-      </div>
     </aside>
   )
 }

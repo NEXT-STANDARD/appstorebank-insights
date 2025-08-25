@@ -176,6 +176,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 <>
                   <li>
                     <Link
+                      href="/admin/app-stores"
+                      className="flex items-center space-x-3 px-4 py-2 text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
+                      <span>アプリストア管理</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
                       href="/admin/users"
                       className="flex items-center space-x-3 px-4 py-2 text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
                     >
@@ -196,23 +207,22 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                       <span>分析</span>
                     </Link>
                   </li>
+                  <li className="mt-4 pt-3 border-t border-neutral-200">
+                    <Link
+                      href="/"
+                      className="flex items-center space-x-3 px-4 py-2 text-neutral-600 hover:text-primary-600 rounded-lg transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                      <span>サイトを見る</span>
+                    </Link>
+                  </li>
                 </>
               )}
             </ul>
           </div>
 
-          {/* Site Link */}
-          <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-neutral-200">
-            <Link
-              href="/"
-              className="inline-flex items-center space-x-2 text-neutral-600 hover:text-primary-600 text-sm transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-              <span>サイトを見る</span>
-            </Link>
-          </div>
         </nav>
 
         {/* Main Content */}
