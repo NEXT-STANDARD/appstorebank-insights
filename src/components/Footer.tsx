@@ -63,11 +63,6 @@ export default function Footer() {
                   API サービス
                 </Link>
               </li>
-              <li>
-                <Link href="#newsletter" className="text-neutral-600 hover:text-primary-600 transition-colors">
-                  ニュースレター
-                </Link>
-              </li>
             </ul>
           </div>
         </div>

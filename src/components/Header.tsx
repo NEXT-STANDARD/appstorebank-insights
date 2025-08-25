@@ -53,14 +53,14 @@ export default function Header() {
               )}
             </div>
 
+            <Link href="/app-stores" className="text-neutral-700 hover:text-primary-600 font-medium text-sm transition-colors">
+              ストア一覧
+            </Link>
             <Link href="/app-store-liberalization" className="text-neutral-700 hover:text-primary-600 font-medium text-sm transition-colors">
               自由化
             </Link>
             <Link href="/sponsors" className="text-neutral-700 hover:text-primary-600 font-medium text-sm transition-colors">
               スポンサー
-            </Link>
-            <Link href="#newsletter" className="text-neutral-700 hover:text-primary-600 font-medium text-sm transition-colors">
-              ニュースレター
             </Link>
           </div>
 
@@ -117,9 +117,9 @@ export default function Header() {
               </Link>
             </div>
             <div className="pt-3 border-t border-neutral-200 space-y-3">
+              <Link href="/app-stores" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">ストア一覧</Link>
               <Link href="/app-store-liberalization" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">自由化</Link>
               <Link href="/sponsors" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">スポンサー</Link>
-              <Link href="#newsletter" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">ニュースレター</Link>
             </div>
             <div className="pt-3 border-t border-neutral-200 space-y-2">
               <Link href="https://developer.appstorebank.com" className="block text-neutral-600 hover:text-primary-600 text-sm py-1 transition-colors">

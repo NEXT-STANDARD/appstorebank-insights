@@ -7,7 +7,6 @@ import BlogHero from '@/components/BlogHero'
 import ArticleCard from '@/components/ArticleCard'
 import CategoryFilter from '@/components/CategoryFilter'
 import BlogSidebar from '@/components/BlogSidebar'
-import Newsletter from '@/components/Newsletter'
 import Footer from '@/components/Footer'
 import ScrollToTopButton from '@/components/ScrollToTopButton'
 import { getPublishedArticles, getCategoryDisplayName, getAllCategoryCounts } from '@/lib/articles'
@@ -171,8 +170,6 @@ function HomePageContent() {
         </div>
       </main>
 
-      {/* Newsletter */}
-      <Newsletter />
       
       <Footer />
       <ScrollToTopButton />
