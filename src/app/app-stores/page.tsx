@@ -204,7 +204,15 @@ export default async function AppStoresPage() {
                 <div key={store.id} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow border-2 border-yellow-200">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center">
-                      <span className="text-4xl mr-3">{store.logo}</span>
+                      {store.logo_emoji ? (
+                        <span className="text-4xl mr-3">{store.logo_emoji}</span>
+                      ) : store.logo_url ? (
+                        <img src={store.logo_url} alt={store.name} className="w-12 h-12 mr-3 rounded" />
+                      ) : (
+                        <div className="w-12 h-12 mr-3 bg-neutral-200 rounded flex items-center justify-center">
+                          <span className="text-lg">📱</span>
+                        </div>
+                      )}
                       <div>
                         <h3 className="text-xl font-bold">{store.name}</h3>
                         <p className="text-sm text-neutral-600">{store.company}</p>
@@ -218,11 +226,11 @@ export default async function AppStoresPage() {
                   <div className="space-y-2">
                     <div className="flex items-center text-sm">
                       <span className="font-medium mr-2">手数料:</span>
-                      <span className="text-neutral-600">{store.commission}</span>
+                      <span className="text-neutral-600">{store.commission_rate}</span>
                     </div>
                     <div className="flex items-center text-sm">
                       <span className="font-medium mr-2">開始予定:</span>
-                      <span className="text-yellow-700 font-bold">{store.launchDate}</span>
+                      <span className="text-yellow-700 font-bold">{store.launch_date}</span>
                     </div>
                     <div className="flex flex-wrap gap-1 mt-3">
                       {store.features.map((feature, idx) => (
@@ -247,7 +255,15 @@ export default async function AppStoresPage() {
                 <div key={store.id} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow opacity-75">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center">
-                      <span className="text-4xl mr-3">{store.logo}</span>
+                      {store.logo_emoji ? (
+                        <span className="text-4xl mr-3">{store.logo_emoji}</span>
+                      ) : store.logo_url ? (
+                        <img src={store.logo_url} alt={store.name} className="w-12 h-12 mr-3 rounded" />
+                      ) : (
+                        <div className="w-12 h-12 mr-3 bg-neutral-200 rounded flex items-center justify-center">
+                          <span className="text-lg">📱</span>
+                        </div>
+                      )}
                       <div>
                         <h3 className="text-xl font-bold">{store.name}</h3>
                         <p className="text-sm text-neutral-600">{store.company}</p>
@@ -261,11 +277,11 @@ export default async function AppStoresPage() {
                   <div className="space-y-2">
                     <div className="flex items-center text-sm">
                       <span className="font-medium mr-2">予定手数料:</span>
-                      <span className="text-neutral-600">{store.commission}</span>
+                      <span className="text-neutral-600">{store.commission_rate}</span>
                     </div>
                     <div className="flex items-center text-sm">
                       <span className="font-medium mr-2">開始時期:</span>
-                      <span className="text-neutral-600">{store.launchDate}</span>
+                      <span className="text-neutral-600">{store.launch_date}</span>
                     </div>
                   </div>
                 </div>
