@@ -112,13 +112,13 @@ const appStores = [
   }
 ]
 
-const statusColors = {
+const statusColors: Record<string, string> = {
   available: 'bg-green-100 text-green-800',
   coming_soon: 'bg-yellow-100 text-yellow-800',
   planning: 'bg-gray-100 text-gray-800'
 }
 
-const statusLabels = {
+const statusLabels: Record<string, string> = {
   available: '利用可能',
   coming_soon: '準備中',
   planning: '計画中'
