@@ -23,6 +23,7 @@ export interface Article {
   updated_at: string
   cover_image_url?: string
   reading_time?: number
+  external_sources?: string[] // 外部ソースのURLリスト
   author?: {
     id: string
     display_name: string

@@ -21,6 +21,8 @@ interface Article {
   author_id?: string
   published_at?: string
   cover_image_url?: string
+  external_sources?: string[]
+  is_featured?: boolean
 }
 
 export default function EditArticlePage() {
@@ -43,8 +45,10 @@ export default function EditArticlePage() {
     status: 'draft',
     is_premium: false,
     is_featured: false,
-    cover_image_url: ''
+    cover_image_url: '',
+    external_sources: [] as string[]
   })
+  const [newSourceUrl, setNewSourceUrl] = useState('')
 
   useEffect(() => {
     loadArticle()
@@ -80,7 +84,8 @@ export default function EditArticlePage() {
           status: data.status || 'draft',
           is_premium: data.is_premium || false,
           is_featured: data.is_featured || false,
-          cover_image_url: data.cover_image_url || ''
+          cover_image_url: data.cover_image_url || '',
+          external_sources: data.external_sources || []
         })
       }
     } catch (error) {
@@ -170,6 +175,23 @@ export default function EditArticlePage() {
   const handleTagsChange = (tagsString: string) => {
     const tags = tagsString.split(',').map(tag => tag.trim()).filter(tag => tag !== '')
     setFormData({ ...formData, tags })
+  }
+
+  const addExternalSource = () => {
+    if (newSourceUrl && newSourceUrl.trim()) {
+      setFormData({ 
+        ...formData, 
+        external_sources: [...formData.external_sources, newSourceUrl.trim()] 
+      })
+      setNewSourceUrl('')
+    }
+  }
+
+  const removeExternalSource = (index: number) => {
+    setFormData({
+      ...formData,
+      external_sources: formData.external_sources.filter((_, i) => i !== index)
+    })
   }
 
   if (isLoading) {
@@ -369,6 +391,66 @@ export default function EditArticlePage() {
                 />
               </div>
             )}
+          </div>
+
+          {/* External Sources */}
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-2">
+              参考・引用元（外部ソース）
+            </label>
+            <div className="space-y-3">
+              {/* 追加済みのソース一覧 */}
+              {formData.external_sources.length > 0 && (
+                <div className="space-y-2 mb-3">
+                  {formData.external_sources.map((source, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg border border-neutral-200">
+                      <a 
+                        href={source} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-primary-600 hover:text-primary-700 underline text-sm truncate flex-1 mr-2"
+                      >
+                        {source}
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => removeExternalSource(index)}
+                        className="text-red-600 hover:text-red-700 text-sm font-medium"
+                      >
+                        削除
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {/* 新規ソース追加フォーム */}
+              <div className="flex space-x-2">
+                <input
+                  type="url"
+                  value={newSourceUrl}
+                  onChange={(e) => setNewSourceUrl(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      addExternalSource()
+                    }
+                  }}
+                  className="flex-1 px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  placeholder="https://example.com/article"
+                />
+                <button
+                  type="button"
+                  onClick={addExternalSource}
+                  className="px-4 py-2 bg-neutral-600 text-white rounded-lg hover:bg-neutral-700"
+                >
+                  追加
+                </button>
+              </div>
+              <p className="text-xs text-neutral-500">
+                ニュース記事やブログ、公式発表など、この記事の参考にした外部ソースのURLを追加できます
+              </p>
+            </div>
           </div>
 
           {/* Status and Premium */}

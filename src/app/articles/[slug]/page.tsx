@@ -11,6 +11,8 @@ import Breadcrumb, { getArticleBreadcrumb } from '@/components/Breadcrumb'
 import { ScrollToTopButtonWithProgress } from '@/components/ScrollToTopButton'
 import TableOfContents from '@/components/TableOfContents'
 import MobileTableOfContents from '@/components/MobileTableOfContents'
+import Header from '@/components/Header'
+import Footer from '@/components/Footer'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const resolvedParams = await params
@@ -85,25 +87,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   return (
     <div className="min-h-screen bg-white">
       <StructuredData type="article" article={article} />
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-neutral-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center hover:opacity-90 transition-opacity">
-              <img src="/logo.png" alt="App Store Bank" className="h-8 w-auto" />
-              <span className="ml-3 text-neutral-600 font-medium">Insights</span>
-            </Link>
-            <nav className="flex items-center space-x-6">
-              <Link href="/" className="text-neutral-600 hover:text-neutral-900 text-sm">
-                ホーム
-              </Link>
-              <Link href="/#categories" className="text-neutral-600 hover:text-neutral-900 text-sm">
-                カテゴリ
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Article Hero */}
       {article.cover_image_url && (
@@ -324,6 +308,28 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           </div>
         )}
 
+        {/* External Sources */}
+        {article.external_sources && article.external_sources.length > 0 && (
+          <div className="mt-12 pt-8 border-t border-neutral-200">
+            <h3 className="text-lg font-semibold text-neutral-800 mb-4">参考・引用元</h3>
+            <div className="space-y-2">
+              {article.external_sources.map((source, index) => (
+                <div key={index} className="flex items-start">
+                  <span className="text-neutral-500 mr-2">[{index + 1}]</span>
+                  <a 
+                    href={source} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary-600 hover:text-primary-700 underline text-sm break-all"
+                  >
+                    {source}
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Share Buttons */}
         <div className="mt-12 pt-8 border-t border-neutral-200">
           <ShareButtons title={article.title} slug={article.slug} />
@@ -337,15 +343,11 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-neutral-900 text-white py-12 mt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p>&copy; 2025 AppStoreBank Insights. All rights reserved.</p>
-        </div>
-      </footer>
-      
       {/* Mobile Table of Contents */}
       <MobileTableOfContents content={article.content} />
+      
+      {/* Footer */}
+      <Footer />
       
       {/* Scroll to Top Button */}
       <ScrollToTopButtonWithProgress />
