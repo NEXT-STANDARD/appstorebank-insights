@@ -175,25 +175,6 @@ export default function BlogHero() {
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12">
-          <div className="text-center">
-            <div className="text-3xl font-bold text-primary-600">120+</div>
-            <div className="text-neutral-600 text-sm">分析記事</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-secondary-600">25+</div>
-            <div className="text-neutral-600 text-sm">専門解説</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-accent-mint">10k+</div>
-            <div className="text-neutral-600 text-sm">月間読者</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-accent-peach">95%</div>
-            <div className="text-neutral-600 text-sm">満足度</div>
-          </div>
-        </div>
       </div>
     </section>
   )
