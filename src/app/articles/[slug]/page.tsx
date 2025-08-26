@@ -10,7 +10,7 @@ import StructuredData from '@/components/StructuredData'
 import Breadcrumb, { getArticleBreadcrumb } from '@/components/Breadcrumb'
 import { ScrollToTopButtonWithProgress } from '@/components/ScrollToTopButton'
 import TableOfContents from '@/components/TableOfContents'
-import MobileTableOfContents from '@/components/MobileTableOfContents'
+// import MobileTableOfContents from '@/components/MobileTableOfContents' // Hidden to avoid hamburger menu conflict
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
@@ -343,8 +343,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         </div>
       </div>
 
-      {/* Mobile Table of Contents */}
-      <MobileTableOfContents content={article.content} />
+      {/* Mobile Table of Contents - Hidden to avoid UI conflict with header hamburger menu */}
+      {/* <MobileTableOfContents content={article.content} /> */}
       
       {/* Footer */}
       <Footer />
