@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { getPublishedArticles, getDraftArticles, Article } from '@/lib/articles'
-import { categoryMapping } from '@/lib/articles'
+import { getPublishedArticles, getDraftArticles, Article, getCategoryDisplayName, loadCategoryMapping } from '@/lib/articles'
 
 export default function ArticlesManagementPage() {
   const [articles, setArticles] = useState<Article[]>([])
@@ -13,6 +12,11 @@ export default function ArticlesManagementPage() {
   useEffect(() => {
     loadArticles()
   }, [filter])
+  
+  // カテゴリマッピングを読み込み
+  useEffect(() => {
+    loadCategoryMapping()
+  }, [])
 
   const loadArticles = async () => {
     setIsLoading(true)
@@ -140,7 +144,7 @@ export default function ArticlesManagementPage() {
                     </td>
                     <td className="px-6 py-4">
                       <span className="text-sm text-neutral-600">
-                        {categoryMapping[article.category]}
+                        {getCategoryDisplayName(article.category)}
                       </span>
                     </td>
                     <td className="px-6 py-4">

@@ -14,6 +14,7 @@ const categoryColors = {
   '法規制': 'bg-red-100 text-red-800',
   '技術解説': 'bg-purple-100 text-purple-800',
   'ニュース': 'bg-yellow-100 text-yellow-800',
+  'テクノロジー / アプリ市場': 'bg-indigo-100 text-indigo-800',
 } as const
 
 export default function ArticleCard({ article, featured = false }: ArticleCardProps) {
@@ -75,6 +76,8 @@ export default function ArticleCard({ article, featured = false }: ArticleCardPr
                 {categoryDisplayName === '法規制' && '⚖️'}
                 {categoryDisplayName === '技術解説' && '🔧'}
                 {categoryDisplayName === 'ニュース' && '📰'}
+                {categoryDisplayName === 'テクノロジー / アプリ市場' && '💻'}
+                {!['市場分析', 'グローバルトレンド', '法規制', '技術解説', 'ニュース', 'テクノロジー / アプリ市場'].includes(categoryDisplayName) && '📄'}
               </div>
             </div>
           )}

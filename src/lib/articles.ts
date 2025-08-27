@@ -11,7 +11,7 @@ export interface Article {
   subtitle?: string
   content: string // MDX content
   excerpt?: string
-  category: 'market_analysis' | 'global_trends' | 'law_regulation' | 'tech_deep_dive'
+  category: string
   tags?: string[]
   status: 'draft' | 'published' | 'archived'
   is_premium: boolean
@@ -144,6 +144,9 @@ export async function getAllCategoryCounts(): Promise<Record<string, number>> {
   }
 
   try {
+    // まずカテゴリマッピングを読み込み
+    await loadCategoryMapping()
+    
     // 公開済みの全記事を取得してカテゴリをカウント
     const { data, error } = await supabase!
       .from('articles')
@@ -167,9 +170,11 @@ export async function getAllCategoryCounts(): Promise<Record<string, number>> {
     // 各カテゴリの表示名に変換
     Object.entries(categoryCount).forEach(([key, count]) => {
       const displayName = getCategoryDisplayName(key)
+      console.log(`Converting category ${key} to display name: ${displayName}`)
       counts[displayName] = count
     })
     
+    console.log('Final category counts:', counts)
     return counts
   } catch (error) {
     console.error('Error fetching all category counts:', error)
@@ -409,9 +414,56 @@ function calculateReadingTime(content: string): number {
   return Math.ceil(wordCount / wordsPerMinute)
 }
 
+// カテゴリキャッシュ
+let categoryCache: { [slug: string]: string } = {}
+let cacheExpiry = 0
+const CACHE_DURATION = 5 * 60 * 1000 // 5分
+
 // カテゴリを日本語に変換
 export function getCategoryDisplayName(category: string): string {
-  return categoryMapping[category as keyof typeof categoryMapping] || category
+  // まず既定のマッピングを確認
+  const defaultName = categoryMapping[category as keyof typeof categoryMapping]
+  if (defaultName) return defaultName
+  
+  // キャッシュから確認（有効期限チェックを緩和）
+  if (categoryCache[category]) {
+    console.log(`Using cached name for ${category}: ${categoryCache[category]}`)
+    return categoryCache[category]
+  }
+  
+  console.log(`No mapping found for category: ${category}, using fallback`)
+  // フォールバック：カテゴリ名をそのまま返す（ハイフンをスペースに変換）
+  return category.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+}
+
+// カテゴリキャッシュを更新
+export function updateCategoryCache(categories: { slug: string, name: string }[]) {
+  categories.forEach(cat => {
+    categoryCache[cat.slug] = cat.name
+  })
+  cacheExpiry = Date.now() + CACHE_DURATION
+}
+
+// データベースからカテゴリマッピングを取得してキャッシュを更新
+export async function loadCategoryMapping() {
+  if (!isSupabaseAvailable()) return
+  
+  try {
+    const { data, error } = await supabase!
+      .from('categories')
+      .select('slug, name')
+      .eq('is_active', true)
+    
+    if (!error && data) {
+      console.log('Loading category mapping from database:', data)
+      updateCategoryCache(data)
+      console.log('Updated category cache:', categoryCache)
+    } else if (error) {
+      console.error('Error loading category mapping:', error)
+    }
+  } catch (e) {
+    console.error('Failed to load category mapping:', e)
+  }
 }
 
 // 記事を検索

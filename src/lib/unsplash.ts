@@ -96,10 +96,11 @@ export const categoryImageKeywords = {
 
 // カテゴリに基づいて画像を取得
 export async function getImagesForCategory(
-  category: keyof typeof categoryImageKeywords,
+  category: string,
   additionalKeywords?: string
 ): Promise<{ images: UnsplashImage[], error?: string }> {
-  const baseKeywords = categoryImageKeywords[category]
+  // カスタムカテゴリの場合はカテゴリ名をキーワードとして使用
+  const baseKeywords = categoryImageKeywords[category as keyof typeof categoryImageKeywords] || category
   const searchQuery = additionalKeywords 
     ? `${baseKeywords} ${additionalKeywords}`
     : baseKeywords

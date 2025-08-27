@@ -1,11 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createArticle } from '@/lib/articles'
 import { getCurrentUser } from '@/lib/auth'
 import ImageSelector from '@/components/ImageSelector'
 import { categoryImageKeywords } from '@/lib/unsplash'
+import { getActiveCategories } from '@/lib/categories'
+import type { Category } from '@/lib/categories'
 
 export default function NewArticlePage() {
   const router = useRouter()
@@ -16,7 +19,7 @@ export default function NewArticlePage() {
     slug: '',
     content: '',
     excerpt: '',
-    category: 'market_analysis' as string,
+    category: '',
     tags: [] as string[],
     status: 'draft',
     is_premium: false,
@@ -27,11 +30,40 @@ export default function NewArticlePage() {
   })
   const [showImageSelector, setShowImageSelector] = useState(false)
   const [newSourceUrl, setNewSourceUrl] = useState('')
-  const [showCustomCategory, setShowCustomCategory] = useState(false)
-  const [customCategory, setCustomCategory] = useState('')
+  const [categories, setCategories] = useState<Category[]>([])
+
+  // カテゴリを読み込み
+  useEffect(() => {
+    const loadCategories = async () => {
+      const { categories: data, error } = await getActiveCategories()
+      if (error) {
+        console.error('Error loading categories:', error)
+      } else {
+        setCategories(data)
+        // 最初のカテゴリを初期値に設定
+        if (data.length > 0) {
+          setFormData(prev => ({ ...prev, category: data[0].slug }))
+        }
+      }
+    }
+    loadCategories()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // バリデーション
+    if (!formData.title || !formData.slug || !formData.content) {
+      alert('タイトル、スラッグ、本文は必須です')
+      return
+    }
+    
+    if (!formData.category) {
+      alert('カテゴリを選択してください')
+      return
+    }
+
+    
     setIsLoading(true)
 
     try {
@@ -149,56 +181,27 @@ export default function NewArticlePage() {
             <label className="block text-sm font-medium text-neutral-700 mb-2">
               カテゴリ *
             </label>
-            {!showCustomCategory ? (
-              <div className="space-y-2">
-                <select
-                  value={formData.category}
-                  onChange={(e) => {
-                    if (e.target.value === 'custom') {
-                      setShowCustomCategory(true)
-                    } else {
-                      setFormData({ ...formData, category: e.target.value })
-                    }
-                  }}
-                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                >
-                  <option value="market_analysis">市場分析</option>
-                  <option value="global_trends">グローバルトレンド</option>
-                  <option value="law_regulation">法規制</option>
-                  <option value="tech_deep_dive">技術解説</option>
-                  <option value="custom">+ カスタムカテゴリを追加</option>
-                </select>
-              </div>
+            {categories.length > 0 ? (
+              <select
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                required
+              >
+                {categories.map((category) => (
+                  <option key={category.id} value={category.slug}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
             ) : (
-              <div className="space-y-2">
-                <div className="flex space-x-2">
-                  <input
-                    type="text"
-                    value={customCategory}
-                    onChange={(e) => {
-                      setCustomCategory(e.target.value)
-                      setFormData({ ...formData, category: e.target.value })
-                    }}
-                    placeholder="新しいカテゴリ名を入力"
-                    className="flex-1 px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowCustomCategory(false)
-                      setCustomCategory('')
-                      setFormData({ ...formData, category: 'market_analysis' })
-                    }}
-                    className="px-4 py-2 text-neutral-600 hover:text-neutral-800"
-                  >
-                    キャンセル
-                  </button>
-                </div>
-                <p className="text-sm text-neutral-500">
-                  英数字とアンダースコア(_)、ハイフン(-)のみ使用可能です
-                </p>
+              <div className="px-3 py-2 border border-neutral-300 rounded-lg bg-neutral-50 text-neutral-500">
+                カテゴリを読み込み中...
               </div>
             )}
+            <p className="mt-1 text-sm text-neutral-500">
+              カテゴリは<Link href="/admin/categories" className="text-primary-600 hover:underline">カテゴリ管理</Link>で作成・編集できます
+            </p>
           </div>
 
           {/* Tags */}

@@ -1,4 +1,4 @@
-import { getArticleBySlug, incrementViewCount, getCategoryDisplayName } from '@/lib/articles'
+import { getArticleBySlug, incrementViewCount, getCategoryDisplayName, loadCategoryMapping } from '@/lib/articles'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import Link from 'next/link'
@@ -30,6 +30,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: '記事が見つかりません',
     }
   }
+
+  // カテゴリマッピングを読み込み
+  await loadCategoryMapping()
 
   const ogImage = article.cover_image_url || `/api/og?title=${encodeURIComponent(article.title)}&category=${encodeURIComponent(getCategoryDisplayName(article.category))}`
 
@@ -80,6 +83,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   if (error || !article) {
     notFound()
   }
+
+  // カテゴリマッピングを読み込み
+  await loadCategoryMapping()
 
   // 閲覧数をインクリメント（非同期で実行）
   incrementViewCount(article.id)

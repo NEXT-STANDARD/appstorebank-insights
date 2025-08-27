@@ -17,7 +17,8 @@ const categoryIcons = {
   'グローバルトレンド': '🌏',
   '法規制': '⚖️',
   '技術解説': '🔧',
-  'ニュース': '📰'
+  'ニュース': '📰',
+  'テクノロジー / アプリ市場': '💻'
 } as const
 
 export default function CategoryFilter({ categories, activeCategory, onCategoryChange, articles = [], categoryCounts = {} }: CategoryFilterProps) {

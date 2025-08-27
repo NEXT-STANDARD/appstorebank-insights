@@ -6,7 +6,7 @@ import { searchImages, getImagesForCategory, trackDownload, UnsplashImage, categ
 interface ImageSelectorProps {
   onImageSelect: (imageUrl: string) => void
   selectedImage?: string
-  category?: keyof typeof categoryImageKeywords
+  category?: string
   initialKeywords?: string
 }
 

@@ -6,6 +6,9 @@ import { supabase } from '@/lib/supabase'
 import { getCurrentUser } from '@/lib/auth'
 import ImageSelector from '@/components/ImageSelector'
 import { categoryImageKeywords } from '@/lib/unsplash'
+import { getActiveCategories } from '@/lib/categories'
+import type { Category } from '@/lib/categories'
+import Link from 'next/link'
 
 interface Article {
   id: string
@@ -40,7 +43,7 @@ export default function EditArticlePage() {
     slug: '',
     content: '',
     excerpt: '',
-    category: 'market_analysis' as string,
+    category: '',
     tags: [] as string[],
     status: 'draft',
     is_premium: false,
@@ -49,12 +52,40 @@ export default function EditArticlePage() {
     external_sources: [] as string[]
   })
   const [newSourceUrl, setNewSourceUrl] = useState('')
-  const [showCustomCategory, setShowCustomCategory] = useState(false)
-  const [customCategory, setCustomCategory] = useState('')
+  const [categories, setCategories] = useState<Category[]>([])
 
   useEffect(() => {
     loadArticle()
+    loadCategories()
   }, [articleId])
+
+  // 記事とカテゴリが両方読み込まれた後、カテゴリの妥当性をチェック
+  useEffect(() => {
+    if (categories.length > 0 && article && formData.category) {
+      const categoryExists = categories.find(cat => cat.slug === formData.category)
+      if (!categoryExists) {
+        console.warn(`Category "${formData.category}" not found in active categories, setting to first available category`)
+        setFormData(prev => ({ ...prev, category: categories[0].slug }))
+      }
+    }
+    // 記事は読み込まれたがカテゴリが空の場合（初期化エラー）
+    else if (categories.length > 0 && article && !formData.category) {
+      console.warn(`No category set for article, setting to first available category`)
+      setFormData(prev => ({ ...prev, category: categories[0].slug }))
+    }
+  }, [categories, article, formData.category])
+
+  const loadCategories = async () => {
+    const { categories: data, error } = await getActiveCategories()
+    if (error) {
+      console.error('Error loading categories:', error)
+    } else {
+      setCategories(data)
+      
+      // 記事データの読み込みとカテゴリの初期化は、記事データが読み込まれた後に行う
+      // ここでは自動選択はしない
+    }
+  }
 
   const loadArticle = async () => {
     try {
@@ -81,7 +112,7 @@ export default function EditArticlePage() {
           slug: data.slug || '',
           content: data.content || '',
           excerpt: data.excerpt || '',
-          category: data.category || 'market_analysis',
+          category: data.category || '',
           tags: data.tags || [],
           status: data.status || 'draft',
           is_premium: data.is_premium || false,
@@ -100,6 +131,26 @@ export default function EditArticlePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // バリデーション
+    if (!formData.title || !formData.slug || !formData.content) {
+      alert('タイトル、スラッグ、本文は必須です')
+      return
+    }
+    
+    if (!formData.category) {
+      alert('カテゴリを選択してください')
+      return
+    }
+    
+    // 選択されたカテゴリが有効かチェック
+    const selectedCategory = categories.find(cat => cat.slug === formData.category)
+    if (!selectedCategory) {
+      alert('選択されたカテゴリが見つかりません。カテゴリを選び直してください。')
+      return
+    }
+
+    
     setIsSaving(true)
 
     try {
@@ -110,8 +161,20 @@ export default function EditArticlePage() {
         return
       }
 
+      // 更新データを準備
       const updateData: any = {
-        ...formData,
+        title: formData.title.trim(),
+        subtitle: formData.subtitle?.trim() || null,
+        slug: formData.slug.trim(),
+        content: formData.content.trim(),
+        excerpt: formData.excerpt?.trim() || null,
+        category: formData.category,
+        tags: formData.tags || [],
+        status: formData.status,
+        is_premium: formData.is_premium,
+        is_featured: formData.is_featured,
+        cover_image_url: formData.cover_image_url || null,
+        external_sources: formData.external_sources || [],
         updated_at: new Date().toISOString()
       }
 
@@ -120,7 +183,10 @@ export default function EditArticlePage() {
         updateData.published_at = new Date().toISOString()
       }
 
-      if (!supabase) return
+      if (!supabase) {
+        alert('データベース接続エラー')
+        return
+      }
       
       const { error } = await supabase
         .from('articles')
@@ -128,12 +194,14 @@ export default function EditArticlePage() {
         .eq('id', articleId)
 
       if (error) {
+        console.error('Supabase update error:', error)
         alert('記事の更新に失敗しました: ' + error.message)
       } else {
         alert('記事を更新しました')
         router.push('/admin/articles')
       }
     } catch (error: any) {
+      console.error('Update error:', error)
       alert('エラーが発生しました: ' + error.message)
     } finally {
       setIsSaving(false)
@@ -280,59 +348,47 @@ export default function EditArticlePage() {
             <label className="block text-sm font-medium text-neutral-700 mb-2">
               カテゴリ *
             </label>
-            {!showCustomCategory ? (
+            {categories.length > 0 ? (
               <div className="space-y-2">
                 <select
                   value={formData.category}
-                  onChange={(e) => {
-                    if (e.target.value === 'custom') {
-                      setShowCustomCategory(true)
-                      setCustomCategory(formData.category)
-                    } else {
-                      setFormData({ ...formData, category: e.target.value })
-                    }
-                  }}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  required
                 >
-                  <option value="market_analysis">市場分析</option>
-                  <option value="global_trends">グローバルトレンド</option>
-                  <option value="law_regulation">法規制</option>
-                  <option value="tech_deep_dive">技術解説</option>
-                  {!['market_analysis', 'global_trends', 'law_regulation', 'tech_deep_dive'].includes(formData.category) && (
-                    <option value={formData.category}>{formData.category} (カスタム)</option>
-                  )}
-                  <option value="custom">+ カスタムカテゴリを追加</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.slug}>
+                      {category.name}
+                    </option>
+                  ))}
                 </select>
+                {/* 既存のカテゴリが見つからない場合の警告 */}
+                {formData.category && !categories.find(cat => cat.slug === formData.category) && (
+                  <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div className="flex items-start">
+                      <svg className="w-5 h-5 text-yellow-600 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                      <div>
+                        <p className="text-sm text-yellow-800 font-medium">
+                          現在のカテゴリ「{formData.category}」が見つかりません
+                        </p>
+                        <p className="text-xs text-yellow-700 mt-1">
+                          上記のカテゴリから選択し直してください
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
-              <div className="space-y-2">
-                <div className="flex space-x-2">
-                  <input
-                    type="text"
-                    value={customCategory}
-                    onChange={(e) => {
-                      setCustomCategory(e.target.value)
-                      setFormData({ ...formData, category: e.target.value })
-                    }}
-                    placeholder="新しいカテゴリ名を入力"
-                    className="flex-1 px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowCustomCategory(false)
-                      setCustomCategory('')
-                    }}
-                    className="px-4 py-2 text-neutral-600 hover:text-neutral-800"
-                  >
-                    キャンセル
-                  </button>
-                </div>
-                <p className="text-sm text-neutral-500">
-                  英数字とアンダースコア(_)、ハイフン(-)のみ使用可能です
-                </p>
+              <div className="px-3 py-2 border border-neutral-300 rounded-lg bg-neutral-50 text-neutral-500">
+                カテゴリを読み込み中...
               </div>
             )}
+            <p className="mt-1 text-sm text-neutral-500">
+              カテゴリは<Link href="/admin/categories" className="text-primary-600 hover:underline">カテゴリ管理</Link>で作成・編集できます
+            </p>
           </div>
 
           {/* Tags */}

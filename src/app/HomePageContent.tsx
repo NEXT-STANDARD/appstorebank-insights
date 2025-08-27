@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import ArticleCard from '@/components/ArticleCard'
 import CategoryFilter from '@/components/CategoryFilter'
 import BlogSidebar from '@/components/BlogSidebar'
-import { getPublishedArticles, getCategoryDisplayName, getAllCategoryCounts } from '@/lib/articles'
+import { getPublishedArticles, getCategoryDisplayName, getAllCategoryCounts, loadCategoryMapping } from '@/lib/articles'
 import type { Article } from '@/lib/articles'
 
 // カテゴリマッピング
@@ -75,6 +75,9 @@ export default function HomePageContent() {
   // カテゴリ数を読み込み
   useEffect(() => {
     const loadCategoryCounts = async () => {
+      // カテゴリマッピングを最初に読み込み
+      await loadCategoryMapping()
+      
       const counts = await getAllCategoryCounts()
       console.log('Loaded category counts:', counts)
       setCategoryCounts(counts)
