@@ -22,7 +22,7 @@ export default function ShareButtons({ title, slug }: ShareButtonsProps) {
       <p className="text-neutral-700 font-medium mb-4">この記事をシェア</p>
       <div className="flex space-x-4">
         <a
-          href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(articleUrl)}`}
+          href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(articleUrl)}&via=AppStoreBank`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center space-x-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-neutral-800"

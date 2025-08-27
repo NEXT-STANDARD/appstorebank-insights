@@ -9,8 +9,7 @@ import { getPublishedArticles, getCategoryDisplayName, getAllCategoryCounts } fr
 import type { Article } from '@/lib/articles'
 
 // カテゴリマッピング
-const categoryKeys = ['market_analysis', 'global_trends', 'law_regulation', 'tech_deep_dive'] as const
-const categories = ['すべて', ...categoryKeys.map(key => getCategoryDisplayName(key))]
+const defaultCategoryKeys = ['market_analysis', 'global_trends', 'law_regulation', 'tech_deep_dive'] as const
 
 export default function HomePageContent() {
   const searchParams = useSearchParams()
@@ -20,6 +19,7 @@ export default function HomePageContent() {
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
   const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({})
+  const [availableCategories, setAvailableCategories] = useState<string[]>(['すべて'])
 
   // URLパラメーターからカテゴリを取得してフィルタを設定
   useEffect(() => {
@@ -37,15 +37,19 @@ export default function HomePageContent() {
       let category: string | undefined = undefined
       
       if (categoryFilter !== 'すべて') {
-        // カテゴリ表示名から内部IDを取得
-        category = categoryKeys.find(key => getCategoryDisplayName(key) === categoryFilter)
+        // カテゴリ表示名から内部IDを取得（カスタムカテゴリも含む）
+        // まずデフォルトカテゴリから探す
+        category = defaultCategoryKeys.find(key => getCategoryDisplayName(key) === categoryFilter)
+        // 見つからない場合はカスタムカテゴリとして扱う
+        if (!category) {
+          // カスタムカテゴリの場合は表示名と内部名が同じ場合が多い
+          category = categoryFilter
+        }
       }
       
       console.log('Loading articles with filter:', { 
         categoryFilter, 
-        category, 
-        categoryKeys,
-        mappedCategories: categoryKeys.map(key => ({ key, display: getCategoryDisplayName(key) }))
+        category
       })
 
       const { articles: newArticles, hasMore: moreAvailable } = await getPublishedArticles({
@@ -74,6 +78,9 @@ export default function HomePageContent() {
       const counts = await getAllCategoryCounts()
       console.log('Loaded category counts:', counts)
       setCategoryCounts(counts)
+      // カテゴリリストを動的に生成
+      const categories = Object.keys(counts).filter(cat => cat !== 'すべて' && counts[cat] > 0)
+      setAvailableCategories(['すべて', ...categories])
     }
     loadCategoryCounts()
   }, [])
@@ -104,7 +111,7 @@ export default function HomePageContent() {
         <div className="lg:col-span-8">
           {/* カテゴリフィルター */}
           <CategoryFilter
-            categories={categories}
+            categories={availableCategories}
             activeCategory={activeCategory}
             onCategoryChange={handleCategoryChange}
             articles={articles}

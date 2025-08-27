@@ -144,23 +144,29 @@ export async function getAllCategoryCounts(): Promise<Record<string, number>> {
   }
 
   try {
-    // 全記事数
-    const totalResult = await getCategoryCount()
+    // 公開済みの全記事を取得してカテゴリをカウント
+    const { data, error } = await supabase!
+      .from('articles')
+      .select('category')
+      .eq('status', 'published')
     
-    // 各カテゴリの記事数
-    const categoryCountPromises = Object.keys(categoryMapping).map(async (key) => {
-      const count = await getCategoryCount(key)
-      return { key, count }
+    if (error || !data) return {}
+    
+    const counts: Record<string, number> = {}
+    const categoryCount: Record<string, number> = {}
+    
+    // すべてのカテゴリをカウント（カスタムカテゴリも含む）
+    data.forEach(article => {
+      const category = article.category || 'market_analysis'
+      categoryCount[category] = (categoryCount[category] || 0) + 1
     })
     
-    const categoryResults = await Promise.all(categoryCountPromises)
+    // 全記事数
+    counts['すべて'] = data.length
     
-    const counts: Record<string, number> = {
-      'すべて': totalResult
-    }
-    
-    categoryResults.forEach(({ key, count }) => {
-      const displayName = getCategoryDisplayName(key as keyof typeof categoryMapping)
+    // 各カテゴリの表示名に変換
+    Object.entries(categoryCount).forEach(([key, count]) => {
+      const displayName = getCategoryDisplayName(key)
       counts[displayName] = count
     })
     

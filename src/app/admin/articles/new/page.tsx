@@ -16,7 +16,7 @@ export default function NewArticlePage() {
     slug: '',
     content: '',
     excerpt: '',
-    category: 'market_analysis' as keyof typeof categoryImageKeywords,
+    category: 'market_analysis' as string,
     tags: [] as string[],
     status: 'draft',
     is_premium: false,
@@ -27,6 +27,8 @@ export default function NewArticlePage() {
   })
   const [showImageSelector, setShowImageSelector] = useState(false)
   const [newSourceUrl, setNewSourceUrl] = useState('')
+  const [showCustomCategory, setShowCustomCategory] = useState(false)
+  const [customCategory, setCustomCategory] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -147,16 +149,56 @@ export default function NewArticlePage() {
             <label className="block text-sm font-medium text-neutral-700 mb-2">
               カテゴリ *
             </label>
-            <select
-              value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value as keyof typeof categoryImageKeywords })}
-              className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-            >
-              <option value="market_analysis">市場分析</option>
-              <option value="global_trends">グローバルトレンド</option>
-              <option value="law_regulation">法規制</option>
-              <option value="tech_deep_dive">技術解説</option>
-            </select>
+            {!showCustomCategory ? (
+              <div className="space-y-2">
+                <select
+                  value={formData.category}
+                  onChange={(e) => {
+                    if (e.target.value === 'custom') {
+                      setShowCustomCategory(true)
+                    } else {
+                      setFormData({ ...formData, category: e.target.value })
+                    }
+                  }}
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value="market_analysis">市場分析</option>
+                  <option value="global_trends">グローバルトレンド</option>
+                  <option value="law_regulation">法規制</option>
+                  <option value="tech_deep_dive">技術解説</option>
+                  <option value="custom">+ カスタムカテゴリを追加</option>
+                </select>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    value={customCategory}
+                    onChange={(e) => {
+                      setCustomCategory(e.target.value)
+                      setFormData({ ...formData, category: e.target.value })
+                    }}
+                    placeholder="新しいカテゴリ名を入力"
+                    className="flex-1 px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowCustomCategory(false)
+                      setCustomCategory('')
+                      setFormData({ ...formData, category: 'market_analysis' })
+                    }}
+                    className="px-4 py-2 text-neutral-600 hover:text-neutral-800"
+                  >
+                    キャンセル
+                  </button>
+                </div>
+                <p className="text-sm text-neutral-500">
+                  英数字とアンダースコア(_)、ハイフン(-)のみ使用可能です
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Tags */}
