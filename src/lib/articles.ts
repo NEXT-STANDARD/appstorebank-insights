@@ -436,6 +436,23 @@ export function getCategoryDisplayName(category: string): string {
   return category.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
 }
 
+// 表示名からカテゴリスラッグを取得
+export function getCategorySlugFromDisplayName(displayName: string): string | undefined {
+  // まず既定のマッピングを確認
+  const defaultSlug = Object.entries(categoryMapping).find(([key, value]) => value === displayName)?.[0]
+  if (defaultSlug) return defaultSlug
+  
+  // キャッシュから確認
+  const cachedSlug = Object.entries(categoryCache).find(([slug, name]) => name === displayName)?.[0]
+  if (cachedSlug) {
+    console.log(`Found cached slug for ${displayName}: ${cachedSlug}`)
+    return cachedSlug
+  }
+  
+  console.log(`No slug found for display name: ${displayName}`)
+  return undefined
+}
+
 // カテゴリキャッシュを更新
 export function updateCategoryCache(categories: { slug: string, name: string }[]) {
   categories.forEach(cat => {

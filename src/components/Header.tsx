@@ -1,11 +1,34 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { getActiveCategories } from '@/lib/categories'
+import type { Category } from '@/lib/categories'
+
+// カテゴリアイコンマッピング
+const categoryIcons: Record<string, string> = {
+  'market_analysis': '📊',
+  'global_trends': '🌏',
+  'law_regulation': '⚖️',
+  'tech_deep_dive': '🔧',
+  'technology_appmarket': '💻'
+}
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [categories, setCategories] = useState<Category[]>([])
+
+  // カテゴリを読み込み
+  useEffect(() => {
+    const loadCategories = async () => {
+      const { categories: data, error } = await getActiveCategories()
+      if (!error && data) {
+        setCategories(data)
+      }
+    }
+    loadCategories()
+  }, [])
 
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-lg border-b border-neutral-200 shadow-sm">
@@ -37,18 +60,34 @@ export default function Header() {
               {/* Dropdown Menu */}
               {isDropdownOpen && (
                 <div className="absolute top-full left-0 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 py-2 z-50">
-                  <Link href="/?category=market_analysis" className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-primary-600 transition-colors">
-                    📊 市場分析
-                  </Link>
-                  <Link href="/?category=global_trends" className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-primary-600 transition-colors">
-                    🌏 グローバルトレンド
-                  </Link>
-                  <Link href="/?category=law_regulation" className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-primary-600 transition-colors">
-                    ⚖️ 法規制
-                  </Link>
-                  <Link href="https://developer.appstorebank.com" className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-primary-600 transition-colors" target="_blank" rel="noopener noreferrer">
-                    🔧 技術解説 →
-                  </Link>
+                  {categories.map((category) => {
+                    const icon = categoryIcons[category.slug] || '📄'
+                    
+                    // 技術解説カテゴリは外部リンク
+                    if (category.slug === 'tech_deep_dive') {
+                      return (
+                        <Link
+                          key={category.id}
+                          href="https://developer.appstorebank.com"
+                          className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-primary-600 transition-colors"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {icon} {category.name} →
+                        </Link>
+                      )
+                    }
+                    
+                    return (
+                      <Link
+                        key={category.id}
+                        href={`/?category=${category.slug}`}
+                        className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-primary-600 transition-colors"
+                      >
+                        {icon} {category.name}
+                      </Link>
+                    )
+                  })}
                 </div>
               )}
             </div>
@@ -103,18 +142,34 @@ export default function Header() {
           <div className="md:hidden bg-white/90 backdrop-blur-sm rounded-xl mt-2 p-4 space-y-3 border border-neutral-200 shadow-lg">
             <div className="space-y-3">
               <div className="text-neutral-500 text-sm font-medium px-3">カテゴリ</div>
-              <Link href="/?category=market_analysis" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 px-3 transition-colors">
-                📊 市場分析
-              </Link>
-              <Link href="/?category=global_trends" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 px-3 transition-colors">
-                🌏 グローバルトレンド
-              </Link>
-              <Link href="/?category=law_regulation" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 px-3 transition-colors">
-                ⚖️ 法規制
-              </Link>
-              <Link href="https://developer.appstorebank.com" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 px-3 transition-colors" target="_blank" rel="noopener noreferrer">
-                🔧 技術解説 →
-              </Link>
+              {categories.map((category) => {
+                const icon = categoryIcons[category.slug] || '📄'
+                
+                // 技術解説カテゴリは外部リンク
+                if (category.slug === 'tech_deep_dive') {
+                  return (
+                    <Link
+                      key={category.id}
+                      href="https://developer.appstorebank.com"
+                      className="block text-neutral-700 hover:text-primary-600 font-medium py-2 px-3 transition-colors"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {icon} {category.name} →
+                    </Link>
+                  )
+                }
+                
+                return (
+                  <Link
+                    key={category.id}
+                    href={`/?category=${category.slug}`}
+                    className="block text-neutral-700 hover:text-primary-600 font-medium py-2 px-3 transition-colors"
+                  >
+                    {icon} {category.name}
+                  </Link>
+                )
+              })}
             </div>
             <div className="pt-3 border-t border-neutral-200 space-y-3">
               <Link href="/app-stores" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">ストア一覧</Link>

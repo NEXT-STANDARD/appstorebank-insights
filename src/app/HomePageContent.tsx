@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import ArticleCard from '@/components/ArticleCard'
 import CategoryFilter from '@/components/CategoryFilter'
 import BlogSidebar from '@/components/BlogSidebar'
-import { getPublishedArticles, getCategoryDisplayName, getAllCategoryCounts, loadCategoryMapping } from '@/lib/articles'
+import { getPublishedArticles, getCategoryDisplayName, getAllCategoryCounts, loadCategoryMapping, getCategorySlugFromDisplayName } from '@/lib/articles'
 import type { Article } from '@/lib/articles'
 
 // カテゴリマッピング
@@ -37,19 +37,14 @@ export default function HomePageContent() {
       let category: string | undefined = undefined
       
       if (categoryFilter !== 'すべて') {
-        // カテゴリ表示名から内部IDを取得（カスタムカテゴリも含む）
-        // まずデフォルトカテゴリから探す
-        category = defaultCategoryKeys.find(key => getCategoryDisplayName(key) === categoryFilter)
-        // 見つからない場合はカスタムカテゴリとして扱う
-        if (!category) {
-          // カスタムカテゴリの場合は表示名と内部名が同じ場合が多い
-          category = categoryFilter
-        }
+        // カテゴリ表示名からスラッグを取得
+        category = getCategorySlugFromDisplayName(categoryFilter) || categoryFilter
       }
       
       console.log('Loading articles with filter:', { 
         categoryFilter, 
-        category
+        category,
+        availableCategories: availableCategories
       })
 
       const { articles: newArticles, hasMore: moreAvailable } = await getPublishedArticles({
