@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import '../styles/globals.css'
 import StructuredData from '@/components/StructuredData'
-import GoogleAnalytics from '@/components/GoogleAnalytics'
+import GoogleAnalyticsWrapper from '@/components/GoogleAnalyticsWrapper'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -80,15 +80,11 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
-
   return (
     <html lang="ja" className={inter.className} suppressHydrationWarning>
       <body className="min-h-screen bg-light-gradient" suppressHydrationWarning>
         {/* Google Analytics */}
-        {GA_MEASUREMENT_ID && (
-          <GoogleAnalytics GA_MEASUREMENT_ID={GA_MEASUREMENT_ID} />
-        )}
+        <GoogleAnalyticsWrapper />
         
         <StructuredData type="website" />
         <div className="min-h-screen flex flex-col">
