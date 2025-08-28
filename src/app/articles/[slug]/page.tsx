@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import ShareButtons from '@/components/ShareButtons'
@@ -202,6 +203,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         {/* Article Content */}
         <div className="prose prose-lg max-w-none">
           <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
             components={{
               h1: ({ children }) => (
                 <h1 className="text-3xl font-bold text-neutral-900 mt-8 mb-4">{children}</h1>

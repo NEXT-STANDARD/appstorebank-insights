@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { supabase } from '@/lib/supabase'
 import { getCategoryDisplayName } from '@/lib/articles'
-import ShareButtons from '@/components/ShareButtons'
 import { ScrollToTopButtonWithProgress } from '@/components/ScrollToTopButton'
 
 interface Article {
@@ -249,6 +249,7 @@ export default function PreviewArticlePage() {
         {/* Article Content */}
         <div className="prose prose-lg max-w-none">
           <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
             components={{
               h1: ({ children }) => (
                 <h1 className="text-3xl font-bold text-neutral-900 mt-8 mb-4">{children}</h1>

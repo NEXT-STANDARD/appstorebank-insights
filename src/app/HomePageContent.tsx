@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import ArticleCard from '@/components/ArticleCard'
 import CategoryFilter from '@/components/CategoryFilter'
 import BlogSidebar from '@/components/BlogSidebar'
+import FirstTimeVisitorGuide from '@/components/FirstTimeVisitorGuide'
 import { getPublishedArticles, getCategoryDisplayName, getAllCategoryCounts, loadCategoryMapping, getCategorySlugFromDisplayName } from '@/lib/articles'
 import type { Article } from '@/lib/articles'
 
@@ -107,6 +108,9 @@ export default function HomePageContent() {
       <div className="lg:grid lg:grid-cols-12 lg:gap-8">
         {/* メインコンテンツ */}
         <div className="lg:col-span-8">
+          {/* はじめての方へ */}
+          <FirstTimeVisitorGuide />
+          
           {/* カテゴリフィルター */}
           <CategoryFilter
             categories={availableCategories}

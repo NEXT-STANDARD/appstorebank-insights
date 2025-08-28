@@ -93,10 +93,13 @@ export default function Header() {
             </div>
 
             <Link href="/app-stores" className="text-neutral-700 hover:text-primary-600 font-medium text-sm transition-colors">
-              ストア一覧
+              アプリストア一覧
+            </Link>
+            <Link href="/app-store-rankings" className="text-neutral-700 hover:text-primary-600 font-medium text-sm transition-colors">
+              アプリストアランキング
             </Link>
             <Link href="/app-store-liberalization" className="text-neutral-700 hover:text-primary-600 font-medium text-sm transition-colors">
-              自由化
+              アプリストア自由化とは
             </Link>
             <Link href="/sponsors" className="text-neutral-700 hover:text-primary-600 font-medium text-sm transition-colors">
               スポンサー
@@ -172,8 +175,9 @@ export default function Header() {
               })}
             </div>
             <div className="pt-3 border-t border-neutral-200 space-y-3">
-              <Link href="/app-stores" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">ストア一覧</Link>
-              <Link href="/app-store-liberalization" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">自由化</Link>
+              <Link href="/app-stores" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">アプリストア一覧</Link>
+              <Link href="/app-store-rankings" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">アプリストアランキング</Link>
+              <Link href="/app-store-liberalization" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">アプリストア自由化とは</Link>
               <Link href="/sponsors" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">スポンサー</Link>
             </div>
             <div className="pt-3 border-t border-neutral-200 space-y-2">

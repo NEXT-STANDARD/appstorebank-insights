@@ -40,10 +40,11 @@ npx kill-port 3001
 - **Database**: Supabase (PostgreSQL) with JSONB support
 - **Authentication**: NextAuth.js with Supabase adapter
 - **Styling**: Tailwind CSS with custom design tokens
-- **Content**: MDX support + Supabase CMS
+- **Content**: MDX support + Supabase CMS with React Markdown + remark-gfm for table support
 - **Images**: Unsplash API + Supabase storage
 - **Deployment**: Vercel (automatic deploys from main branch)
 - **TypeScript**: Strict mode enforced
+- **Analytics**: Google Analytics 4 (GA4) integration
 
 ### Database Schema
 
@@ -52,7 +53,9 @@ npx kill-port 3001
 - id: UUID
 - slug: string (unique)
 - title: string
-- content: text (Markdown)
+- subtitle: string (optional)
+- content: text (Markdown with GFM table support)
+- excerpt: string (optional)
 - category: enum ('market_analysis', 'global_trends', 'law_regulation', 'tech_deep_dive')
 - status: enum ('draft', 'published', 'archived')
 - is_featured: boolean
@@ -60,6 +63,10 @@ npx kill-port 3001
 - external_sources: JSONB array (URLs)
 - tags: text array
 - technical_level: enum ('beginner', 'intermediate', 'advanced', 'expert')
+- view_count: integer
+- reading_time: integer
+- cover_image_url: string (optional)
+- published_at: timestamp
 ```
 
 #### App Stores Table
@@ -67,9 +74,25 @@ npx kill-port 3001
 - id: UUID
 - name: string
 - slug: string (unique)
+- description: text
+- logo_url: string
+- website_url: string
 - status: enum ('available', 'coming_soon', 'planning', 'discontinued')
 - commission_rate: string
 - features: JSONB
+- launch_date: date
+- company: string
+```
+
+#### Categories Table (Dynamic)
+```sql
+- id: UUID
+- slug: string (unique)
+- name: string
+- display_name: string
+- description: text
+- is_active: boolean
+- sort_order: integer
 ```
 
 ### Critical Service Integrations
@@ -110,9 +133,11 @@ npx kill-port 3001
 - `Header.tsx` - Unified sticky navigation with dropdown categories
 - `BlogHero.tsx` - Homepage featured article display
 - `ArticleCard.tsx` - Article preview cards with author info
-- `TableOfContents.tsx` - Scroll-tracking article navigation
+- `TableOfContents.tsx` - Scroll-tracking article navigation with auto-hide on mobile
 - `ImageSelector.tsx` - Unsplash image search integration
-- `CategoryFilter.tsx` - Article filtering by category
+- `CategoryFilter.tsx` - Article filtering by category with dynamic counts
+- `GoogleAnalyticsWrapper.tsx` - GA4 tracking integration
+- `ScrollToTopButton.tsx` - Progress indicator and scroll-to-top functionality
 
 #### Article Rendering Pipeline
 1. Server-side data fetching via `getArticleBySlug()`
@@ -151,6 +176,12 @@ UNSPLASH_ACCESS_KEY           # Image search API
 - HTTPS enforcement in production
 - Referrer-Policy restrictions
 
+#### SEO Configuration
+- Dynamic sitemap generation at `/sitemap.xml`
+- robots.txt with admin directory exclusion
+- Open Graph and Twitter Card metadata
+- Structured data for articles
+
 #### Image Domains
 Allowed remote patterns:
 - `qczwbwhbxyrwasauxhwy.supabase.co`
@@ -166,19 +197,17 @@ Allowed remote patterns:
 ### Recent Features
 
 1. **External Sources**: Articles can reference external URLs stored as JSONB array
-2. **Unified Header**: All pages use the same Header component
+2. **Dynamic Categories**: Admin-configurable categories with custom display names
 3. **Featured Articles**: Homepage hero section pulls from `is_featured` flag
-4. **Category Counts**: Dynamic article counts per category
+4. **Markdown Tables**: Full GFM table support via remark-gfm plugin
+5. **SEO Enhancements**: Dynamic sitemap, robots.txt, and structured data
+6. **Google Analytics**: GA4 integration with custom events tracking
 
 ### Database Migrations
 
-Apply pending migrations in Supabase SQL Editor:
-```sql
--- Add external_sources column (if not exists)
-ALTER TABLE articles 
-ADD COLUMN IF NOT EXISTS external_sources JSONB DEFAULT '[]'::jsonb;
+Pending migrations are in `/migration_*.sql` files:
+- `migration_add_external_sources.sql` - Adds JSONB external sources to articles
+- `migration_add_is_featured.sql` - Adds featured flag to articles
+- `supabase/migrations/create_app_stores_table.sql` - App stores schema
 
--- Add is_featured column (if not exists)  
-ALTER TABLE articles
-ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT FALSE;
-```
+Apply via Supabase SQL Editor in order.

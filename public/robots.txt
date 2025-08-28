@@ -1,0 +1,17 @@
+# AppStoreBank Insights robots.txt
+# https://insights.appstorebank.com
+
+# Allow all crawlers
+User-agent: *
+
+# Disallow admin pages
+Disallow: /admin/
+Disallow: /admin/*
+Disallow: /api/auth/
+Disallow: /api/admin/
+
+# Allow all other pages
+Allow: /
+
+# Sitemap
+Sitemap: https://insights.appstorebank.com/sitemap.xml
