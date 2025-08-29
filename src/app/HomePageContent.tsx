@@ -6,6 +6,9 @@ import ArticleCard from '@/components/ArticleCard'
 import CategoryFilter from '@/components/CategoryFilter'
 import BlogSidebar from '@/components/BlogSidebar'
 import FirstTimeVisitorGuide from '@/components/FirstTimeVisitorGuide'
+import NewsTicker from '@/components/NewsTicker'
+import EventTimeline from '@/components/EventTimeline'
+import TrendingTopics from '@/components/TrendingTopics'
 import { getPublishedArticles, getCategoryDisplayName, getAllCategoryCounts, loadCategoryMapping, getCategorySlugFromDisplayName } from '@/lib/articles'
 import type { Article } from '@/lib/articles'
 
@@ -104,12 +107,21 @@ export default function HomePageContent() {
   }
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="lg:grid lg:grid-cols-12 lg:gap-8">
-        {/* メインコンテンツ */}
-        <div className="lg:col-span-8">
-          {/* はじめての方へ */}
-          <FirstTimeVisitorGuide />
+    <>
+      {/* ニュースティッカー */}
+      <NewsTicker />
+      
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="lg:grid lg:grid-cols-12 lg:gap-8">
+          {/* メインコンテンツ */}
+          <div className="lg:col-span-8">
+            {/* はじめての方へ */}
+            <FirstTimeVisitorGuide />
+            
+            {/* 注目トピック */}
+            <div className="mb-8">
+              <TrendingTopics />
+            </div>
           
           {/* カテゴリフィルター */}
           <CategoryFilter
@@ -160,13 +172,18 @@ export default function HomePageContent() {
               </div>
             )}
           </div>
-        </div>
+          </div>
 
         {/* サイドバー */}
         <div className="mt-12 lg:mt-0 lg:col-span-4">
+          {/* 重要日程 */}
+          <div className="mb-8">
+            <EventTimeline />
+          </div>
           <BlogSidebar />
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </>
   )
 }

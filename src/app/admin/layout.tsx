@@ -187,6 +187,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   </li>
                   <li>
                     <Link
+                      href="/admin/trending"
+                      className="flex items-center space-x-3 px-4 py-2 text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                      </svg>
+                      <span>トレンド管理</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
                       href="/admin/app-stores"
                       className="flex items-center space-x-3 px-4 py-2 text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
                     >

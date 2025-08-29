@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { getActiveCategories } from '@/lib/categories'
 import type { Category } from '@/lib/categories'
+import UserMenu from './UserMenu'
 
 // カテゴリアイコンマッピング
 const categoryIcons: Record<string, string> = {
@@ -106,20 +107,9 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* Right side links */}
-          <div className="hidden md:flex items-center space-x-4">
-            <Link 
-              href="https://developer.appstorebank.com" 
-              className="text-neutral-600 hover:text-primary-600 text-sm transition-colors"
-            >
-              Developer
-            </Link>
-            <Link 
-              href="https://api.appstorebank.com" 
-              className="text-neutral-600 hover:text-primary-600 text-sm transition-colors"
-            >
-              API
-            </Link>
+          {/* Right side - User Menu */}
+          <div className="hidden md:flex items-center">
+            <UserMenu />
           </div>
 
           {/* Mobile menu button */}
@@ -179,14 +169,6 @@ export default function Header() {
               <Link href="/app-store-rankings" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">アプリストアランキング</Link>
               <Link href="/app-store-liberalization" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">アプリストア自由化とは</Link>
               <Link href="/sponsors" className="block text-neutral-700 hover:text-primary-600 font-medium py-2 transition-colors">スポンサー</Link>
-            </div>
-            <div className="pt-3 border-t border-neutral-200 space-y-2">
-              <Link href="https://developer.appstorebank.com" className="block text-neutral-600 hover:text-primary-600 text-sm py-1 transition-colors">
-                Developer Portal
-              </Link>
-              <Link href="https://api.appstorebank.com" className="block text-neutral-600 hover:text-primary-600 text-sm py-1 transition-colors">
-                API Services
-              </Link>
             </div>
           </div>
         )}

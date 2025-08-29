@@ -2,10 +2,6 @@ import { getArticleBySlug, incrementViewCount, getCategoryDisplayName, loadCateg
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import Link from 'next/link'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import ShareButtons from '@/components/ShareButtons'
 import StructuredData from '@/components/StructuredData'
 import Breadcrumb, { getArticleBreadcrumb } from '@/components/Breadcrumb'
@@ -14,6 +10,7 @@ import TableOfContents from '@/components/TableOfContents'
 // import MobileTableOfContents from '@/components/MobileTableOfContents' // Hidden to avoid hamburger menu conflict
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import ArticleContent from '@/components/ArticleContent'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const resolvedParams = await params
@@ -201,104 +198,11 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         )}
 
         {/* Article Content */}
-        <div className="prose prose-lg max-w-none">
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            components={{
-              h1: ({ children }) => (
-                <h1 className="text-3xl font-bold text-neutral-900 mt-8 mb-4">{children}</h1>
-              ),
-              h2: ({ children }) => (
-                <h2 className="text-2xl font-bold text-neutral-900 mt-8 mb-4">{children}</h2>
-              ),
-              h3: ({ children }) => (
-                <h3 className="text-xl font-bold text-neutral-900 mt-6 mb-3">{children}</h3>
-              ),
-              p: ({ children }) => (
-                <p className="text-neutral-700 leading-relaxed mb-4">{children}</p>
-              ),
-              ul: ({ children }) => (
-                <ul className="list-disc pl-6 space-y-2 mb-4 text-neutral-700">{children}</ul>
-              ),
-              ol: ({ children }) => (
-                <ol className="list-decimal pl-6 space-y-2 mb-4 text-neutral-700">{children}</ol>
-              ),
-              li: ({ children }) => (
-                <li className="leading-relaxed">{children}</li>
-              ),
-              blockquote: ({ children }) => (
-                <blockquote className="border-l-4 border-primary-500 pl-4 italic text-neutral-600 my-4">
-                  {children}
-                </blockquote>
-              ),
-              code: ({ node, inline, className, children, ...props }: any) => {
-                const match = /language-(\w+)/.exec(className || '')
-                return !inline && match ? (
-                  <SyntaxHighlighter
-                    style={vscDarkPlus}
-                    language={match[1]}
-                    PreTag="div"
-                    className="rounded-lg text-sm mb-4"
-                    showLineNumbers={true}
-                    {...props}
-                  >
-                    {String(children).replace(/\n$/, '')}
-                  </SyntaxHighlighter>
-                ) : (
-                  <code className="bg-neutral-100 px-2 py-1 rounded text-sm font-mono" {...props}>
-                    {children}
-                  </code>
-                )
-              },
-              pre: ({ children }) => (
-                <div className="mb-4">
-                  {children}
-                </div>
-              ),
-              table: ({ children }) => (
-                <div className="overflow-x-auto mb-6">
-                  <table className="min-w-full divide-y divide-neutral-200">
-                    {children}
-                  </table>
-                </div>
-              ),
-              thead: ({ children }) => (
-                <thead className="bg-neutral-50">{children}</thead>
-              ),
-              th: ({ children }) => (
-                <th className="px-4 py-2 text-left text-sm font-semibold text-neutral-900 border border-neutral-200">
-                  {children}
-                </th>
-              ),
-              td: ({ children }) => (
-                <td className="px-4 py-2 text-sm text-neutral-700 border border-neutral-200">
-                  {children}
-                </td>
-              ),
-              strong: ({ children }) => (
-                <strong className="font-bold text-neutral-900">{children}</strong>
-              ),
-              em: ({ children }) => (
-                <em className="italic">{children}</em>
-              ),
-              hr: () => (
-                <hr className="my-8 border-neutral-200" />
-              ),
-              a: ({ children, href }) => (
-                <a 
-                  href={href} 
-                  className="text-primary-600 hover:text-primary-700 underline"
-                  target={href?.startsWith('http') ? '_blank' : undefined}
-                  rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
-                >
-                  {children}
-                </a>
-              ),
-            }}
-          >
-            {article.content}
-          </ReactMarkdown>
-        </div>
+        <ArticleContent 
+          content={article.content}
+          isPremium={article.is_premium || false}
+          articleTitle={article.title}
+        />
 
         {/* Tags */}
         {article.tags && article.tags.length > 0 && (
