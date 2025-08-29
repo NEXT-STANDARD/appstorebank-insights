@@ -9,6 +9,16 @@ import FirstTimeVisitorGuide from '@/components/FirstTimeVisitorGuide'
 import NewsTicker from '@/components/NewsTicker'
 import EventTimeline from '@/components/EventTimeline'
 import TrendingTopics from '@/components/TrendingTopics'
+import AppStoreComparison from '@/components/AppStoreComparison'
+import DeveloperChecklist from '@/components/DeveloperChecklist'
+import AppStoreQuiz from '@/components/AppStoreQuiz'
+import MarketDataDashboard from '@/components/MarketDataDashboard'
+import AppStoreFlowchart from '@/components/AppStoreFlowchart'
+import IndustryStatsSummary from '@/components/IndustryStatsSummary'
+import GlossaryComponent from '@/components/GlossaryComponent'
+import FAQComponent from '@/components/FAQComponent'
+import LearningPathComponent from '@/components/LearningPathComponent'
+import CaseStudyComponent from '@/components/CaseStudyComponent'
 import { getPublishedArticles, getCategoryDisplayName, getAllCategoryCounts, loadCategoryMapping, getCategorySlugFromDisplayName } from '@/lib/articles'
 import type { Article } from '@/lib/articles'
 
@@ -121,6 +131,64 @@ export default function HomePageContent() {
             {/* 注目トピック */}
             <div className="mb-8">
               <TrendingTopics />
+            </div>
+
+            {/* アプリストア比較表 */}
+            <div className="mb-8">
+              <AppStoreComparison />
+            </div>
+
+            {/* 開発者向けチェックリスト */}
+            <div className="mb-8">
+              <DeveloperChecklist />
+            </div>
+
+            {/* アプリストア診断 */}
+            <div className="mb-8">
+              <AppStoreQuiz />
+            </div>
+
+            {/* 市場データダッシュボード */}
+            <div className="mb-8">
+              <MarketDataDashboard />
+            </div>
+
+            {/* アプリストア選択フローチャート */}
+            <div className="mb-8">
+              <AppStoreFlowchart />
+            </div>
+
+            {/* 業界統計サマリー */}
+            <div className="mb-8">
+              <IndustryStatsSummary />
+            </div>
+
+            {/* 学習・理解支援セクション */}
+            <div className="mb-8">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">学習・理解支援</h2>
+                <p className="text-gray-600">アプリストア自由化について体系的に学習できるコンテンツ</p>
+              </div>
+              
+              {/* 用語集 */}
+              <div className="mb-8">
+                <GlossaryComponent />
+              </div>
+
+              {/* FAQ */}
+              <div className="mb-8">
+                <FAQComponent />
+              </div>
+
+              {/* 学習パス */}
+              <div className="mb-8">
+                <LearningPathComponent />
+              </div>
+
+              {/* ケーススタディ */}
+              <div className="mb-8">
+                <CaseStudyComponent />
+              </div>
             </div>
           
           {/* カテゴリフィルター */}
