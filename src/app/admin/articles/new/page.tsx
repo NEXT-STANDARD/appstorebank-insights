@@ -123,7 +123,7 @@ export default function NewArticlePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-2xl font-bold text-neutral-800 mb-6">新規記事作成</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">

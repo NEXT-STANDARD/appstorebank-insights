@@ -169,7 +169,7 @@ export default function FactCheckReportsPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">レポートを読み込み中...</p>
@@ -179,7 +179,7 @@ export default function FactCheckReportsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
       {/* ヘッダー */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 flex items-center space-x-3">

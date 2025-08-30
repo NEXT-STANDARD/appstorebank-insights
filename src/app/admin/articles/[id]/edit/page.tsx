@@ -281,7 +281,7 @@ export default function EditArticlePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-neutral-800">記事編集</h1>
         <button

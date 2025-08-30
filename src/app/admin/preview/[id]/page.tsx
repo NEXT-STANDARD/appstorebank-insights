@@ -99,7 +99,7 @@ export default function PreviewArticlePage() {
     <div className="min-h-screen bg-white">
       {/* プレビューヘッダー */}
       <div className="bg-yellow-50 border-b-2 border-yellow-200 px-4 py-3">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="w-full flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <span className="text-yellow-800 font-medium">📝 プレビューモード</span>
             <span className={`px-2 py-1 text-xs rounded-full ${
@@ -132,7 +132,7 @@ export default function PreviewArticlePage() {
 
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-neutral-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link href="/" className="flex items-center hover:opacity-90 transition-opacity">
               <img src="/logo.png" alt="App Store Bank" className="h-8 w-auto" />
@@ -349,7 +349,7 @@ export default function PreviewArticlePage() {
 
       {/* Footer */}
       <footer className="bg-neutral-900 text-white py-12 mt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="w-full px-4 sm:px-6 lg:px-8 text-center">
           <p>&copy; 2025 AppStoreBank Insights. All rights reserved.</p>
         </div>
       </footer>
