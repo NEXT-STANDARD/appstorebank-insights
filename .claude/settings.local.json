@@ -21,7 +21,9 @@
       "Bash(git rm:*)",
       "Bash(npm start)",
       "Bash(curl:*)",
-      "Read(c:\\Users\\keita\\OneDrive\\Pictures\\Screenshots/**)"
+      "Read(c:\\Users\\keita\\OneDrive\\Pictures\\Screenshots/**)",
+      "WebFetch(domain:localhost)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []

@@ -2,6 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { Check, X, AlertCircle, ExternalLink, Calendar, Clock, Save, FileText, CheckCircle2, AlertTriangle, RefreshCw } from 'lucide-react'
+import { 
+  createFactCheckSessionClient, 
+  updateFactCheckSessionClient, 
+  completeFactCheckSessionClient,
+  recordFactCheckHistoryClient
+} from '@/lib/fact-check-client'
 
 interface ChecklistItem {
   id: string
@@ -70,19 +76,65 @@ export default function FactCheckExecutePage() {
   const [currentDate] = useState(new Date().toLocaleDateString('ja-JP'))
   const [executionNotes, setExecutionNotes] = useState('')
   const [showSummary, setShowSummary] = useState(false)
+  const [currentSession, setCurrentSession] = useState<any>(null)
+  const [currentUser, setCurrentUser] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const updateItemStatus = (id: string, status: ChecklistItem['status'], newValue?: string, notes?: string) => {
-    setChecklist(prev => prev.map(item => 
-      item.id === id 
-        ? { 
-            ...item, 
-            status, 
-            newValue, 
-            notes,
-            checkedAt: status === 'verified' || status === 'updated' ? new Date().toISOString() : item.checkedAt
-          }
-        : item
-    ))
+  // セッション初期化
+  useEffect(() => {
+    const initializeSession = async () => {
+      try {
+        // 新しいファクトチェックセッションを作成
+        const session = await createFactCheckSessionClient(checklist.length)
+        setCurrentSession(session)
+        
+      } catch (error) {
+        console.error('Error initializing session:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    initializeSession()
+  }, [])
+
+  const updateItemStatus = async (id: string, status: ChecklistItem['status'], newValue?: string, notes?: string) => {
+    if (!currentSession) {
+      console.error('Session not available')
+      return
+    }
+
+    try {
+      // データベースに記録
+      const item = checklist.find(item => item.id === id)
+      if (item) {
+        await recordFactCheckHistoryClient(
+          currentSession.id,
+          id,
+          status,
+          item.currentValue,
+          newValue || item.currentValue,
+          notes,
+          status === 'verified' ? 'high' : status === 'updated' ? 'medium' : 'low'
+        )
+      }
+
+      // ローカル状態更新
+      setChecklist(prev => prev.map(item => 
+        item.id === id 
+          ? { 
+              ...item, 
+              status, 
+              newValue, 
+              notes,
+              checkedAt: status === 'verified' || status === 'updated' ? new Date().toISOString() : item.checkedAt
+            }
+          : item
+      ))
+
+    } catch (error) {
+      console.error('Error updating item status:', error)
+    }
   }
 
   const getStatusIcon = (status: string) => {
@@ -124,27 +176,57 @@ export default function FactCheckExecutePage() {
 
   const progress = (completedCount / checklist.length) * 100
 
-  const generateReport = () => {
-    const report = {
-      date: currentDate,
-      totalItems: checklist.length,
-      completed: completedCount,
-      updated: updatedCount,
-      failed: failedCount,
-      items: checklist.map(item => ({
-        id: item.id,
-        claim: item.claim,
-        oldValue: item.currentValue,
-        newValue: item.newValue || item.currentValue,
-        status: item.status,
-        notes: item.notes,
-        checkedAt: item.checkedAt
-      })),
-      executionNotes
+  const generateReport = async () => {
+    if (!currentSession) {
+      console.error('No active session')
+      return
     }
-    
-    console.log('ファクトチェックレポート:', report)
-    setShowSummary(true)
+
+    try {
+      // セッション完了処理
+      await updateFactCheckSessionClient(currentSession.id, {
+        execution_notes: executionNotes,
+        status: 'completed' as const
+      })
+
+      await completeFactCheckSessionClient(currentSession.id)
+
+      const report = {
+        sessionId: currentSession.id,
+        date: currentDate,
+        totalItems: checklist.length,
+        completed: completedCount,
+        updated: updatedCount,
+        failed: failedCount,
+        items: checklist.map(item => ({
+          id: item.id,
+          claim: item.claim,
+          oldValue: item.currentValue,
+          newValue: item.newValue || item.currentValue,
+          status: item.status,
+          notes: item.notes,
+          checkedAt: item.checkedAt
+        })),
+        executionNotes
+      }
+      
+      console.log('ファクトチェックレポート:', report)
+      setShowSummary(true)
+
+    } catch (error) {
+      console.error('Error generating report:', error)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">セッションを初期化中...</p>
+        </div>
+      </div>
+    )
   }
 
   return (

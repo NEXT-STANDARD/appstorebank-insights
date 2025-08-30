@@ -1,3 +1,4 @@
+import { createBrowserClient } from '@supabase/ssr'
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
@@ -12,13 +13,7 @@ if (!supabaseAnonKey) {
 }
 
 export const supabase = supabaseUrl && supabaseAnonKey 
-  ? createClient(supabaseUrl, supabaseAnonKey, {
-      auth: {
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: true
-      }
-    })
+  ? createBrowserClient(supabaseUrl, supabaseAnonKey)
   : null
 
 // Server-side用（Service Role Key使用）

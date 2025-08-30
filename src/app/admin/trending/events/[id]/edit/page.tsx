@@ -6,10 +6,11 @@ import { ArrowLeft, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase-client'
 
-export default function EditTimelineEventPage({ params }: { params: { id: string } }) {
+export default function EditTimelineEventPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [eventId, setEventId] = useState<string>('')
   const [event, setEvent] = useState({
     title: '',
     description: '',
@@ -21,15 +22,25 @@ export default function EditTimelineEventPage({ params }: { params: { id: string
   })
 
   useEffect(() => {
-    loadEvent()
-  }, [params.id])
+    const getParams = async () => {
+      const resolvedParams = await params
+      setEventId(resolvedParams.id)
+    }
+    getParams()
+  }, [params])
+
+  useEffect(() => {
+    if (eventId) {
+      loadEvent()
+    }
+  }, [eventId])
 
   const loadEvent = async () => {
     try {
       const { data, error } = await supabase
         .from('timeline_events')
         .select('*')
-        .eq('id', params.id)
+        .eq('id', eventId)
         .single()
 
       if (error) throw error
@@ -56,7 +67,7 @@ export default function EditTimelineEventPage({ params }: { params: { id: string
           ...event,
           updated_at: new Date().toISOString()
         })
-        .eq('id', params.id)
+        .eq('id', eventId)
 
       if (error) throw error
 
@@ -78,7 +89,7 @@ export default function EditTimelineEventPage({ params }: { params: { id: string
       const { error } = await supabase
         .from('timeline_events')
         .delete()
-        .eq('id', params.id)
+        .eq('id', eventId)
 
       if (error) throw error
 
