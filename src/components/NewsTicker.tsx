@@ -11,49 +11,14 @@ interface NewsItem {
   date: string
 }
 
-// サンプルデータ（実際はSupabaseから取得）
-const sampleNews: NewsItem[] = [
-  {
-    id: '1',
-    type: 'regulation',
-    text: '🎌 スマートフォン新法が2025年4月より施行開始',
-    link: '/articles/smartphone-law-2025',
-    date: '2024-08-28'
-  },
-  {
-    id: '2',
-    type: 'market',
-    text: '📊 国内アプリストア市場規模が前年比15%成長',
-    link: '/articles/market-growth-2024',
-    date: '2024-08-27'
-  },
-  {
-    id: '3',
-    type: 'announcement',
-    text: '🚀 楽天が独自アプリストアの開設を発表',
-    link: '/articles/rakuten-appstore-launch',
-    date: '2024-08-26'
-  },
-  {
-    id: '4',
-    type: 'update',
-    text: '⚡ Apple、日本向けApp Store手数料を17%に引き下げ',
-    link: '/articles/apple-fee-reduction',
-    date: '2024-08-25'
-  },
-  {
-    id: '5',
-    type: 'regulation',
-    text: '⚖️ 公正取引委員会がデジタル市場の新ガイドライン公表',
-    link: '/articles/jftc-guidelines',
-    date: '2024-08-24'
-  }
-]
+// 実際のデータはSupabaseから取得予定
+// 現在はデータが登録されていない状態
+const newsData: NewsItem[] = []
 
 export default function NewsTicker() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isHovered, setIsHovered] = useState(false)
-  const [news] = useState<NewsItem[]>(sampleNews)
+  const [news] = useState<NewsItem[]>(newsData)
 
   useEffect(() => {
     if (isHovered) return
@@ -95,7 +60,23 @@ export default function NewsTicker() {
     }
   }
 
-  if (news.length === 0) return null
+  // データがない場合のメッセージを表示
+  if (news.length === 0) {
+    return (
+      <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-y border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center py-3">
+            <div className="flex items-center space-x-2">
+              <AlertCircle className="w-4 h-4 text-gray-400" />
+              <span className="text-sm text-gray-600">
+                現在、ニュース速報は登録されていません。最新情報が入り次第、こちらに表示されます。
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-y border-gray-200">
