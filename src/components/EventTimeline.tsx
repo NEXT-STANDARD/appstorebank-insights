@@ -42,7 +42,7 @@ const timelineEvents: TimelineEvent[] = [
   },
   {
     id: '4',
-    date: '2025-04-01',
+    date: '2025-12-18',
     title: 'スマートフォン新法施行',
     description: 'アプリストア自由化の完全実施',
     type: 'law',
@@ -180,9 +180,9 @@ export default function EventTimeline() {
 
       <div className="mt-6 pt-4 border-t border-gray-200">
         <p className="text-xs text-gray-500 text-center">
-          アプリストア自由化まで残り
+          アプリストア自由化（スマホ新法施行）まで残り
           <span className="font-bold text-blue-600 mx-1">
-            {Math.ceil((new Date('2025-04-01').getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}
+            {Math.max(0, Math.ceil((new Date('2025-12-18').getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))}
           </span>
           日
         </p>
