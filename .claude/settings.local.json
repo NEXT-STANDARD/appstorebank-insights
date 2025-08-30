@@ -23,7 +23,8 @@
       "Bash(curl:*)",
       "Read(c:\\Users\\keita\\OneDrive\\Pictures\\Screenshots/**)",
       "WebFetch(domain:localhost)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Read(c:\\Users\\keita\\OneDrive\\Pictures\\Screenshots/**)"
     ],
     "deny": [],
     "ask": []
