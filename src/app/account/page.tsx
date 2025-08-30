@@ -5,12 +5,13 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getCurrentUser, signOut } from '@/lib/auth'
 import type { ExtendedUser } from '@/lib/auth'
-import { User, Mail, Calendar, Shield, LogOut, Settings, ChevronRight } from 'lucide-react'
+import { User, Mail, Calendar, Shield, LogOut, Settings, ChevronRight, Clock, Star } from 'lucide-react'
 
 export default function AccountPage() {
   const router = useRouter()
   const [user, setUser] = useState<ExtendedUser | null>(null)
   const [loading, setLoading] = useState(true)
+  const [showComingSoonModal, setShowComingSoonModal] = useState(false)
 
   useEffect(() => {
     checkUser()
@@ -140,8 +141,12 @@ export default function AccountPage() {
                     </span>
                   </div>
                 </div>
-                <button className="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all">
-                  プレミアムプランにアップグレード
+                <button 
+                  onClick={() => setShowComingSoonModal(true)}
+                  className="w-full px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600 transition-all cursor-pointer flex items-center justify-center"
+                >
+                  <Star className="w-4 h-4 mr-2" />
+                  プレミアムプランにアップグレード（準備中）
                 </button>
               </div>
             </div>
@@ -203,6 +208,79 @@ export default function AccountPage() {
           </div>
         </div>
       </div>
+
+      {/* Coming Soon Modal */}
+      {showComingSoonModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative animate-fade-up">
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-100 rounded-full mb-4">
+                <Clock className="w-8 h-8 text-amber-600" />
+              </div>
+              
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                プレミアムプラン準備中
+              </h2>
+              
+              <p className="text-gray-600 mb-6">
+                より充実したコンテンツと機能を提供するプレミアムプランを現在開発中です。<br />
+                近日中にリリース予定ですので、もうしばらくお待ちください。
+              </p>
+            </div>
+
+            <div className="space-y-4 mb-6">
+              <div className="flex items-start space-x-3">
+                <Star className="w-5 h-5 text-yellow-500 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    限定コンテンツ
+                  </p>
+                  <p className="text-xs text-gray-600">
+                    プレミアム会員限定の深掘り記事・解説
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-3">
+                <Shield className="w-5 h-5 text-blue-500 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    優先サポート
+                  </p>
+                  <p className="text-xs text-gray-600">
+                    専用サポートチャンネルでの優先対応
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-3">
+                <User className="w-5 h-5 text-green-500 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    コミュニティアクセス
+                  </p>
+                  <p className="text-xs text-gray-600">
+                    プレミアム会員限定のコミュニティ参加権
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <button
+                onClick={() => setShowComingSoonModal(false)}
+                className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+              >
+                了解しました
+              </button>
+              
+              <p className="text-xs text-gray-500 text-center">
+                リリース時には登録メールアドレスにお知らせします
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

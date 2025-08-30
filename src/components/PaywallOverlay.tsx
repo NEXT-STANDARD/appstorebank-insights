@@ -49,7 +49,7 @@ export default function PaywallOverlay({ isVisible, articleTitle }: PaywallOverl
           {articleTitle && (
             <p className="text-sm text-gray-600 mb-4">
               「{articleTitle}」の続きを読むには<br />
-              無料会員登録が必要です
+              会員登録（無料）が必要です
             </p>
           )}
         </div>
@@ -121,7 +121,7 @@ export default function PaywallOverlay({ isVisible, articleTitle }: PaywallOverl
         </div>
 
         <p className="text-xs text-gray-500 text-center mt-6">
-          登録は無料です。いつでも退会できます。
+          登録は無料です。すべてのコンテンツを閲覧できます。
         </p>
       </div>
     </div>
