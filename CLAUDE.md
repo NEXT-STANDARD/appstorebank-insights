@@ -95,13 +95,58 @@ npx kill-port 3001
 - sort_order: integer
 ```
 
+#### Fact-Check System Tables
+```sql
+-- fact_check_sessions: Track monthly fact-checking execution sessions
+- id: UUID
+- execution_date: date
+- executor_id: string
+- total_items: integer
+- completed_items: integer
+- updated_items: integer
+- failed_items: integer
+- execution_notes: text
+- status: enum ('in_progress', 'completed', 'cancelled')
+
+-- fact_check_items: Master list of facts to verify
+- id: string
+- component: string (which UI component contains this fact)
+- section: string
+- fact_type: enum ('statistic', 'date', 'percentage', 'legal', 'company_info', 'market_data')
+- claim: string
+- source: string
+- source_url: string
+- priority: enum ('critical', 'high', 'medium', 'low')
+- confidence: enum ('high', 'medium', 'low')
+- is_active: boolean
+- review_frequency_days: integer
+
+-- fact_check_history: Record of all verification attempts
+- id: UUID
+- session_id: UUID
+- item_id: string
+- previous_value: string
+- new_value: string
+- verification_status: enum ('verified', 'updated', 'failed', 'skipped')
+- verification_notes: text
+- confidence_level: enum ('high', 'medium', 'low')
+- checked_at: timestamp
+- checker_id: string
+```
+
 ### Critical Service Integrations
 
 #### Supabase Clients
 - **Server-side admin**: Use `getSupabaseAdmin()` from `lib/supabase.ts`
 - **Client-side**: Use standard `supabase` client
-- **Auth operations**: Always use server-side for security
-- **Migrations**: SQL files in `/migration_*.sql` and `/supabase/migrations/`
+- **Auth operations**: Always use server-side for security with `getCurrentUserServer()` from `lib/auth-server.ts`
+- **Migrations**: SQL files in `supabase/migrations/` with timestamp prefixes (YYYYMMDD format)
+
+#### Next.js 15 Authentication Patterns
+- **Critical**: In Next.js 15, `cookies()` is now async - always use `await cookies()`
+- **Server-side auth**: Use `getCurrentUserServer()` which properly handles async cookies and uses `getUser()` instead of deprecated `getSession()`
+- **Client-side API calls**: Always include `credentials: 'include'` in fetch requests for authentication
+- **Cookie handling**: Use `getAll()` method for reading cookies in server components
 
 #### Unsplash Integration
 - Handled via `lib/unsplash.ts`
@@ -126,6 +171,15 @@ npx kill-port 3001
 - `/admin/app-stores` - App store management
 - `/admin/drafts` - Draft articles
 - `/admin/analytics` - Site analytics
+- `/admin/fact-check` - Fact-checking dashboard
+- `/admin/fact-check/execute` - Monthly fact-checking execution
+- `/admin/fact-check/reports` - Historical fact-check reports with PDF generation
+
+#### User Account Routes
+- `/account` - User account overview with subscription status
+- `/account/settings` - Profile and account settings
+- `/login` - User authentication
+- `/signup` - User registration
 
 ### Component Architecture
 
@@ -202,12 +256,48 @@ Allowed remote patterns:
 4. **Markdown Tables**: Full GFM table support via remark-gfm plugin
 5. **SEO Enhancements**: Dynamic sitemap, robots.txt, and structured data
 6. **Google Analytics**: GA4 integration with custom events tracking
+7. **Fact-Checking System**: Monthly automated fact verification with session tracking, PDF report generation, and historical analysis
+8. **Account Management**: User profiles, settings, and premium subscription status tracking
+9. **Staged Premium Strategy**: Free access with "coming soon" modals for premium features
+10. **Flexible Admin Layout**: Responsive admin dashboard with full-width layouts across all management pages
 
 ### Database Migrations
 
-Pending migrations are in `/migration_*.sql` files:
-- `migration_add_external_sources.sql` - Adds JSONB external sources to articles
-- `migration_add_is_featured.sql` - Adds featured flag to articles
-- `supabase/migrations/create_app_stores_table.sql` - App stores schema
+All migrations are organized in `supabase/migrations/` with timestamp prefixes:
+- `20240101_add_external_sources.sql` - Adds JSONB external sources to articles
+- `20240102_add_is_featured.sql` - Adds featured flag to articles  
+- `20240103_add_trending_management.sql` - Trending topics management
+- `20240104_cleanup_existing_policies.sql` - RLS policy cleanup
+- `20240105_create_fact_check_history.sql` - Fact-checking system tables
+- `20240106_create_app_stores_table.sql` - App stores schema
 
-Apply via Supabase SQL Editor in order.
+Apply via Supabase SQL Editor in chronological order.
+
+### Key Development Patterns
+
+#### Admin Dashboard Layout
+All admin pages use flexible width layout with `w-full px-4 sm:px-6 lg:px-8 py-8` instead of fixed max-width containers for better responsive design.
+
+#### Fact-Checking Workflow
+1. Monthly execution triggered on `/admin/fact-check/execute`
+2. Critical and due items verified against original sources
+3. Changes recorded in `fact_check_history` table
+4. PDF reports generated with jsPDF for archival
+5. Session-based tracking for accountability
+
+#### Premium Strategy Implementation
+- All content currently free with registration
+- Premium features show "coming soon" modals
+- PaywallOverlay component updated to encourage registration rather than payment
+- Staged rollout approach for future premium features
+
+#### Client-Side API Integration
+Use `lib/fact-check-client.ts` patterns for all admin API calls:
+```typescript
+const response = await fetch('/api/endpoint', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  credentials: 'include', // Critical for Next.js 15 auth
+  body: JSON.stringify(data)
+})
+```
