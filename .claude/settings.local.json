@@ -25,7 +25,8 @@
       "WebFetch(domain:localhost)",
       "Bash(node:*)",
       "Read(c:\\Users\\keita\\OneDrive\\Pictures\\Screenshots/**)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []
