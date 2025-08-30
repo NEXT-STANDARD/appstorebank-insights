@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react'
 import { Check, X, AlertCircle, Star, Filter, ArrowUpDown, ExternalLink, Download, Info } from 'lucide-react'
 import { supabase } from '@/lib/supabase-client'
+import Header from '@/components/Header'
+import Footer from '@/components/Footer'
+import ScrollToTopButton from '@/components/ScrollToTopButton'
 
 interface AppStore {
   id: string
@@ -24,8 +27,9 @@ interface AppStore {
   is_featured: boolean
 }
 
-type FilterType = 'all' | 'available' | 'coming_soon' | 'third_party'
+type FilterType = 'all' | 'available' | 'coming_soon' | 'third_party' | 'low_commission' | 'small_business_friendly'
 type SortType = 'name' | 'commission' | 'launch_date' | 'status'
+type DeveloperType = 'individual' | 'small_business' | 'enterprise'
 
 export default function AppStoreComparisonPage() {
   const [appStores, setAppStores] = useState<AppStore[]>([])
@@ -33,6 +37,9 @@ export default function AppStoreComparisonPage() {
   const [filter, setFilter] = useState<FilterType>('all')
   const [sort, setSort] = useState<SortType>('name')
   const [selectedStores, setSelectedStores] = useState<string[]>([])
+  const [showCalculator, setShowCalculator] = useState(false)
+  const [revenue, setRevenue] = useState<number>(0)
+  const [developerType, setDeveloperType] = useState<DeveloperType>('individual')
 
   useEffect(() => {
     loadAppStores()
@@ -62,6 +69,13 @@ export default function AppStoreComparisonPage() {
         return store.status === 'coming_soon'
       case 'third_party':
         return store.is_third_party
+      case 'low_commission':
+        // 手数料20%以下のストアを表示
+        const rate = parseFloat(store.commission_rate.replace(/[^\d.]/g, ''))
+        return rate <= 20
+      case 'small_business_friendly':
+        // 小規模事業者向け優遇レートがあるストアを表示
+        return store.small_business_rate !== null && store.small_business_rate !== undefined
       default:
         return true
     }
@@ -138,30 +152,68 @@ export default function AppStoreComparisonPage() {
     )
   }
 
+  const calculateCommission = (store: AppStore, revenue: number, developerType: DeveloperType) => {
+    let rate = parseFloat(store.commission_rate.replace(/[^\d.]/g, '')) / 100
+    
+    // 小規模事業者レートを適用
+    if (developerType === 'small_business' && store.small_business_rate) {
+      rate = parseFloat(store.small_business_rate.replace(/[^\d.]/g, '')) / 100
+    }
+    
+    // サブスクリプション1年目レートを適用（該当する場合）
+    if (store.subscription_rate_year1 && revenue > 0) {
+      rate = parseFloat(store.subscription_rate_year1.replace(/[^\d.]/g, '')) / 100
+    }
+    
+    return revenue * rate
+  }
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('ja-JP', {
+      style: 'currency',
+      currency: 'JPY',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount)
+  }
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="animate-pulse space-y-6">
-            <div className="h-12 bg-gray-200 rounded w-1/3"></div>
-            <div className="h-64 bg-gray-200 rounded"></div>
+      <>
+        <Header />
+        <main className="min-h-screen bg-gray-50 py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="animate-pulse space-y-6">
+              <div className="h-12 bg-gray-200 rounded w-1/3"></div>
+              <div className="h-64 bg-gray-200 rounded"></div>
+            </div>
           </div>
-        </div>
-      </div>
+        </main>
+        <Footer />
+        <ScrollToTopButton />
+      </>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <>
+      <Header />
+      <main className="min-h-screen bg-gray-50 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* ヘッダー */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            アプリストア詳細比較
+            アプリストア手数料比較 2024年最新版
           </h1>
-          <p className="text-xl text-gray-600 mb-8">
-            主要アプリストアの手数料、機能、対応デバイスを詳細比較
+          <p className="text-xl text-gray-600 mb-4">
+            App Store・Google Play等の手数料を徹底比較。個人開発者・小規模事業者向け
           </p>
+          <div className="flex flex-wrap justify-center gap-2 mb-8">
+            <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">手数料計算ツール</span>
+            <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">個人開発者向け</span>
+            <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">小規模事業者特典</span>
+            <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium">2024年最新情報</span>
+          </div>
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 inline-block">
             <div className="flex items-center space-x-2 text-blue-800">
               <Info className="w-5 h-5" />
@@ -186,6 +238,8 @@ export default function AppStoreComparisonPage() {
                   <option value="available">利用可能</option>
                   <option value="coming_soon">準備中</option>
                   <option value="third_party">第三者ストア</option>
+                  <option value="low_commission">低手数料（20%以下）</option>
+                  <option value="small_business_friendly">小規模事業者向け</option>
                 </select>
               </div>
               
@@ -217,6 +271,123 @@ export default function AppStoreComparisonPage() {
               )}
             </div>
           </div>
+        </div>
+
+        {/* 手数料計算ツール */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-gray-900">💰 手数料計算ツール</h2>
+              <button
+                onClick={() => setShowCalculator(!showCalculator)}
+                className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+              >
+                {showCalculator ? '計算ツールを閉じる' : '計算ツールを開く'}
+              </button>
+            </div>
+            <p className="text-gray-600 mt-2">
+              想定収益を入力して、各アプリストアでの手数料を比較できます
+            </p>
+          </div>
+          
+          {showCalculator && (
+            <div className="p-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    想定月間売上
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      value={revenue || ''}
+                      onChange={(e) => setRevenue(parseInt(e.target.value) || 0)}
+                      placeholder="1000000"
+                      className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <span className="absolute left-3 top-3 text-gray-500">¥</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">例: 1,000,000 (100万円)</p>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    開発者タイプ
+                  </label>
+                  <select
+                    value={developerType}
+                    onChange={(e) => setDeveloperType(e.target.value as DeveloperType)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="individual">個人開発者</option>
+                    <option value="small_business">小規模事業者</option>
+                    <option value="enterprise">企業・大規模</option>
+                  </select>
+                </div>
+                
+                <div className="flex items-end">
+                  <button
+                    onClick={() => setRevenue(0)}
+                    className="w-full px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    リセット
+                  </button>
+                </div>
+              </div>
+              
+              {revenue > 0 && (
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    月間売上 {formatCurrency(revenue)} での手数料比較
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {sortedStores
+                      .filter(store => store.status === 'available')
+                      .slice(0, 6)
+                      .map((store) => {
+                        const commission = calculateCommission(store, revenue, developerType)
+                        const netRevenue = revenue - commission
+                        return (
+                          <div
+                            key={store.id}
+                            className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                          >
+                            <div className="flex items-center space-x-3 mb-3">
+                              <span className="text-2xl">{store.logo_emoji}</span>
+                              <div>
+                                <h4 className="font-semibold text-gray-900">{store.name}</h4>
+                                <p className="text-xs text-gray-500">{store.company}</p>
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <div className="flex justify-between text-sm">
+                                <span className="text-gray-600">手数料:</span>
+                                <span className="font-semibold text-red-600">
+                                  {formatCurrency(commission)}
+                                </span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-gray-600">手取り:</span>
+                                <span className="font-semibold text-green-600">
+                                  {formatCurrency(netRevenue)}
+                                </span>
+                              </div>
+                              <div className="flex justify-between text-xs text-gray-500">
+                                <span>手数料率:</span>
+                                <span>{store.commission_rate}</span>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                  </div>
+                  <div className="mt-4 text-xs text-gray-500">
+                    ※ 実際の手数料は条件により異なる場合があります。詳細は各ストアの規約をご確認ください。
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* 比較表 */}
@@ -354,6 +525,37 @@ export default function AppStoreComparisonPage() {
           </ul>
         </div>
 
+        {/* FAQ セクション */}
+        <div className="mt-12 bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-6">よくある質問</h2>
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">最も手数料が安いアプリストアはどこですか？</h3>
+              <p className="text-gray-600">
+                一般的にサードパーティのアプリストアが最も低い手数料（5-15%）を提供しています。主要ストアではGoogle Playが15%、App Storeが小規模事業者向けに15%の優遇レートを提供しています。
+              </p>
+            </div>
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">個人開発者におすすめのアプリストアは？</h3>
+              <p className="text-gray-600">
+                収益が年間100万円以下の個人開発者には、App Storeの小規模デベロッパープログラム（15%）やGoogle Playの15%レートがおすすめです。より低い手数料を求める場合は第三者ストアの検討も。
+              </p>
+            </div>
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">アプリストア手数料はなぜ高いのですか？</h3>
+              <p className="text-gray-600">
+                手数料はアプリの審査、配信インフラの運営、決済処理、顧客サポート、セキュリティ対策などのコストをカバーしています。大手ストアは数十億人のユーザーにリーチできる価値も提供しています。
+              </p>
+            </div>
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">複数のストアに同時配信するメリットは？</h3>
+              <p className="text-gray-600">
+                リーチの拡大、リスク分散、最適な手数料率の活用が主なメリットです。ただし、各ストアごとの審査・更新作業、異なる技術要件への対応などの管理コストも考慮が必要です。
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* 関連記事への誘導 */}
         <div className="mt-12 bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
           <h3 className="text-xl font-semibold text-gray-900 mb-3">
@@ -374,7 +576,10 @@ export default function AppStoreComparisonPage() {
             </a>
           </div>
         </div>
-      </div>
-    </div>
+        </div>
+      </main>
+      <Footer />
+      <ScrollToTopButton />
+    </>
   )
 }
