@@ -26,7 +26,9 @@
       "Bash(node:*)",
       "Read(c:\\Users\\keita\\OneDrive\\Pictures\\Screenshots/**)",
       "Bash(find:*)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(npx next build:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []
