@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import { Suspense } from 'react'
 import ArticlesPageContent from './ArticlesPageContent'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
@@ -22,7 +23,9 @@ export default function ArticlesPage() {
     <>
       <Header />
       <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-        <ArticlesPageContent />
+        <Suspense fallback={<div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
+          <ArticlesPageContent />
+        </Suspense>
       </main>
       <Footer />
       <ScrollToTopButton />
